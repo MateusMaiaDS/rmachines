@@ -1,0 +1,874 @@
+#Dependencies
+library(purrr)
+library(mlbench)
+library(magrittr)
+library(kernlab)
+#Data to test the function
+
+formula<-classes~.
+train<-dataset[1:70,]
+test<-dataset[71:100,]
+boots_size=10
+cost=1
+degree=2
+set.bootstrap=42
+automatic_tuning=FALSE
+gamma_rbf=1;gamma_lap=1;poly_scale=1;offset=0
+
+mcc<-function(observed,predicted){
+      levels(observed)<-c(1,-1)
+      levels(predicted)<-c(1,-1)
+      confusion_matrix<-table(observed,predicted)
+      TP=confusion_matrix[1,1]
+      TN=confusion_matrix[2,2]
+      FP=confusion_matrix[2,1]
+      FN=confusion_matrix[1,2]
+      mcc<-(TP*TN-FP*FN)/sqrt((TP+FP+1e-5)*(TP+FN+1e-5)*(TN+FP+1e-5)*(TN+FN+1e-5))
+      return(mcc)
+}
+
+acc<-function(observed,predicted){
+      levels(observed)<-c(1,-1)
+      levels(predicted)<-c(1,-1)
+      confusion_matrix<-table(observed,predicted)
+      acc<-sum(diag(confusion_matrix))/sum(confusion_matrix)
+      return(acc)
+}
+
+#RM Code
+random_machines<-function(formula,#Formula that will be used
+                          train,#The Training set
+                          test,#The test set
+                          # class_name,#The string corresponding to the variable that will be predicted
+                          boots_size=100, #B correspoding to the number of bootstrap samples
+                          cost=1,#Cost parameter of SVM
+                          degree=2, #Degree used in Table 1.,
+                          seed.bootstrap=NULL,automatic_tuning=FALSE,gamma_rbf=1,gamma_lap=1,poly_scale=1,offset=0
+){
+      #Probability associated with each kernel function
+      class_name<- as.character(formula[[2]])
+
+      prob_weights<-list()
+
+      #The Kernel types used in the algorithm
+      kernel_type<-c('rbfdot','polydot','laplacedot','vanilladot')
+
+      #TUNING AUTOMÁTICO
+      if(automatic_tuning){
+
+            early_model<- map(kernel_type,~ksvm(formula,data=train,type="C-svc",
+                                                kernel=if(.x=="vanilladot"){
+                                                      "polydot"
+                                                }else{
+                                                      .x
+                                                },
+                                                C=cost,
+                                                kpar=if(.x=='laplacedot' ||.x=='rbfdot')
+                                                {
+                                                      "automatic"
+                                                }else if(.x=='polydot'){
+                                                      list(degree=2,scale=poly_scale,offset=0)
+                                                }else{
+                                                      list(degree=1,scale=poly_scale,offset=0)
+                                                }))
+      }else{
+            #The early model that will calculate the probabilities that will be used during the sort process
+            early_model<-map(kernel_type,~ksvm(formula,data=train,type="C-svc",
+                                               kernel=if(.x=="vanilladot"){
+                                                     "polydot"
+                                               }else{
+                                                     .x
+                                               },
+                                               C=cost,
+                                               kpar=if(.x=='laplacedot')
+                                               {
+                                                     list(sigma=gamma_lap)
+                                               }else if(.x=='rbfdot'){
+
+                                                     list(sigma=gamma_rbf)
+
+                                               }else if(.x=='polydot'){
+                                                     list(degree=2,scale=poly_scale,offset=0)
+                                               }else{
+                                                     list(degree=1,scale=poly_scale,offset=0)
+                                               }))
+      }
+      #Calculando o predict para cada modelo
+      predict<-map(early_model,~predict(.x,newdata=test))
+
+
+      #Calculating the weights (Equation 9)
+      accuracy<-map(predict,~table(.x,unlist(test[[class_name]]))) %>%
+            map(~sum(diag(.x))/sum(.x)) %>% unlist()
+      log_acc<-log(accuracy/(1-accuracy))
+      log_acc[is.infinite(log_acc)]<-1 #Sometimes the accuracy can be equal to 1, so this line certify to not produce any NA
+      prob_weights<-log_acc/sum(log_acc)
+      prob_weights<-ifelse(prob_weights<0,0,prob_weights)#To not heve negative values of probabilities
+
+      #----Defining the variables----
+      models<-rep(list(0),boots_size)#Creating the list of models
+      boots_sample<-list(rep(boots_size)) #Argument that will be passed in the map function
+      out_of_bag<-list(rep(boots_size)) #OOB samples object
+      boots_index_row<-list(nrow(train)) %>% rep(boots_size)
+
+      #====================================================
+
+      #======Selecting the Bootstraping samples============
+      #
+      #Creating a indicator varaible to verify if at least one observation of each class is verified
+      at_least_one<-NULL
+      # p=0
+      #Defining which rows will be sampled
+      if(is.null(seed.bootstrap)){
+            #At least's condition
+            while(is.null(at_least_one)){
+                  boots_index_row_new<-map(boots_index_row,~sample(1:.x,.x,replace=TRUE))#Generating the boots_sample index
+                  #Defining the Boots samples
+                  boots_sample<-map(boots_index_row_new,~train[.x,]) #Without feature susection
+                  #Defining out_of the bags_sample
+                  out_of_bag<-map(boots_index_row_new,~train[-unique(.x),])
+                  if(any(unlist(lapply(boots_sample,function(x){table(x[[class_name]])==0})))){
+                        at_least_one<-NULL
+                  }else{
+                        at_least_one<-1
+                  }
+            }
+      }else{
+            set.seed(seed.bootstrap)
+            #At least's condition
+            while(is.null(at_least_one)){
+                  boots_index_row_new<-map(boots_index_row,~sample(1:.x,.x,replace=TRUE))#Generating the boots_sample index
+                  #Defining the Boots samples
+                  boots_sample<-map(boots_index_row_new,~train[.x,]) #Without feature susection
+                  #Defining out_of the bags_sample
+                  out_of_bag<-map(boots_index_row_new,~train[-unique(.x),])
+
+                  #Verifying any zero
+                  if(any(unlist(lapply(boots_sample,function(x){table(x[[class_name]])==0})))){
+                        at_least_one<-NULL
+                  }else{
+                        at_least_one<-1
+                  }
+                  # p<-p+1
+                  # print(paste("Procurando amostra:",p))
+            }
+      }
+
+      #=====================================================
+
+      #=================Generating the models===============
+      #Calculating the models
+
+      #Here is defined which kernel will be used to heach model
+      random_kernel<-sample(c('rbfdot','polydot','laplacedot','vanilladot'),
+                            boots_size,replace = TRUE,prob = prob_weights)
+
+
+      if(automatic_tuning){
+            models<-map2(boots_sample,random_kernel,~ksvm(formula, data=.x,type="C-svc",
+                                                          kernel=if(.y=="vanilladot"){
+                                                                "polydot"
+                                                          }else{
+                                                                .y
+                                                          },
+                                                          C=cost,
+                                                          kpar=if(.y=='laplacedot' ||.y=='rbfdot')
+                                                          {
+                                                                "automatic"
+                                                          }else if(.y=='polydot'){
+                                                                list(degree=2,scale=poly_scale,offset=0)
+                                                          }else{
+                                                                list(degree=1,scale=poly_scale,offset=0)
+                                                          }))
+
+      }else{
+            models<-map2(boots_sample,random_kernel,~ksvm(formula, data=.x,type="C-svc",
+                                                          kernel=if(.y=="vanilladot"){
+                                                                "polydot"
+                                                          }else{
+                                                                .y
+                                                          },
+                                                          C=cost,
+                                                          kpar=if(.y=='laplacedot')
+                                                          {
+                                                                list(sigma=gamma_lap)
+                                                          }else if(.y=='rbfdot'){
+                                                                list(sigma=gamma_rbf)
+                                                          }else if(.y=='polydot'){
+                                                                list(degree=2,scale=poly_scale,offset=0)
+                                                          }else{
+                                                                list(degree=1,scale=poly_scale,offset=0)
+                                                          }))
+
+      }
+
+
+
+
+      #Prediction of each mode
+      predict<-map(models,~predict(.x,newdata=test))
+
+      #Prediction of OOB samples
+      predict_oobg<-map2(models,out_of_bag,~predict(.x,newdata=.y))
+
+      #Calculating weights from equation 10
+      kernel_weight<-map2(predict_oobg,out_of_bag,~table(.x,unlist(.y[,class_name]))) %>%
+            map_dbl(~sum(diag(.x))/sum(.x))
+
+
+      #Predictions finals
+      predict_df<-predict %>%                         #Generating a matrix with where the the rows are each bootstrap sample
+            unlist %>%                         #and the columns are each observation from test set
+            matrix(ncol=nrow(test),byrow = TRUE)
+
+
+      predict_df_new<-map(seq(1:nrow(test)),~predict_df[,.x])#Transposing the matrix
+
+      pred_df_fct<-map(predict_df_new,~ifelse(.x==unlist(levels(train[[class_name]]))[1],1,-1)) %>% #Verifying the monst commmon prediction in the boostrap samples for each obs
+            map(~.x/(1-kernel_weight)^2) %>% #Multiplying the weights
+            map(sum) %>% map(sign) %>% map(~ifelse(.x==1,levels(dplyr::pull(train,class_name))[1],levels(unlist(train[,class_name]))[2])) %>%
+            unlist %>% as.factor()
+
+      #AVG_AGR(para calcular iremos transformar o vetor das matrizes de fatores)
+      levels_class<-levels(train[[class_name]])
+
+      #Transforma a matriz para calcular o agreement
+      pred_df_standard<-ifelse(predict_df==levels_class[[1]],1,-1)
+      agreement_trees<-tcrossprod(pred_df_standard)
+
+      #Padroniza a contagem de ocorrencia
+      agreement_trees<-(agreement_trees+agreement_trees[1,1])/(2*agreement_trees[1,1])
+
+      #Tira as medias
+      avg_agreement<-mean(agreement_trees[lower.tri(agreement_trees,diag = FALSE)])
+
+
+      #=============================
+      return(list(predicted=pred_df_fct,lambda_values=list(Lin_Kern=prob_weights[1],
+                                                           Pol_Kern=prob_weights[2],
+                                                           RBF_Kern=prob_weights[3],
+                                                           LAP_Kern=prob_weights[4]),
+                  model_params=list(class_name=class_name,
+                                    boots_size=boots_size,
+                                    cost=cost,
+                                    gamma_rbf=gamma_rbf,
+                                    gamma_lap=gamma_lap,
+                                    degree=degree),bootstrap_models=models,bootstrap_samples=boots_sample,agreement=avg_agreement))
+}
+
+#==============================================================
+
+#RM Code Multiclass
+random_machines_multiclass<-function(formula,#Formula that will be used
+                                     train,#The Training set
+                                     test,#The test set
+                                     boots_size=100, #B correspoding to the number of bootstrap samples
+                                     cost=1,#Cost parameter of SVM
+                                     degree=2, #Degree used in Table 1.,
+                                     seed.bootstrap=NULL,automatic_tuning=FALSE,gamma_rbf=1,gamma_lap=1,poly_scale=1,offset=0
+){
+      #Choosing the class name
+      class_name<- as.character(formula[[2]])
+
+      #Probability associated with each kernel function
+      prob_weights<-list()
+
+      #The Kernel types used in the algorithm
+      kernel_type<-c('rbfdot','polydot','laplacedot','vanilladot')
+
+      #TUNING AUTOMÁTICO
+      if(automatic_tuning){
+
+            early_model<- map(kernel_type,~ksvm(formula,data=train,type="C-svc",
+                                                kernel=if(.x=="vanilladot"){
+                                                      "polydot"
+                                                }else{
+                                                      .x
+                                                },
+                                                C=cost,
+                                                kpar=if(.x=='laplacedot' ||.x=='rbfdot')
+                                                {
+                                                      "automatic"
+                                                }else if(.x=='polydot'){
+                                                      list(degree=2,scale=poly_scale,offset=0)
+                                                }else{
+                                                      list(degree=1,scale=poly_scale,offset=0)
+                                                }))
+      }else{
+            #The early model that will calculate the probabilities that will be used during the sort process
+            early_model<-map(kernel_type,~ksvm(formula,data=train,type="C-svc",
+                                               kernel=if(.x=="vanilladot"){
+                                                     "polydot"
+                                               }else{
+                                                     .x
+                                               },
+                                               C=cost,
+                                               kpar=if(.x=='laplacedot')
+                                               {
+                                                     list(sigma=gamma_lap)
+                                               }else if(.x=='rbfdot'){
+
+                                                     list(sigma=gamma_rbf)
+
+                                               }else if(.x=='polydot'){
+                                                     list(degree=2,scale=poly_scale,offset=0)
+                                               }else{
+                                                     list(degree=1,scale=poly_scale,offset=0)
+                                               }))
+      }
+      #Calculando o predict para cada modelo
+      predict<-map(early_model,~predict(.x,newdata=test))
+
+
+      #Calculating the weights (Equation 9)
+      accuracy<-map(predict,~table(.x,unlist(test[[class_name]]))) %>%
+            map(~sum(diag(.x))/sum(.x)) %>% unlist()
+      log_acc<-log(accuracy/(1-accuracy))
+      log_acc[is.infinite(log_acc)]<-1 #Sometimes the accuracy can be equal to 1, so this line certify to not produce any NA
+      prob_weights<-log_acc/sum(log_acc)
+      prob_weights<-ifelse(prob_weights<0,0,prob_weights)#To not heve negative values of probabilities
+
+
+      #----Defining the variables----
+      models<-rep(list(0),boots_size)#Creating the list of models
+      boots_sample<-list(rep(boots_size)) #Argument that will be passed in the map function
+      out_of_bag<-list(rep(boots_size)) #OOB samples object
+      boots_index_row<-list(nrow(train)) %>% rep(boots_size)
+
+      #====================================================
+
+      #======Selecting the Bootstraping samples============
+      #
+      #Creating a indicator varaible to verify if at least one observation of each class is verified
+      at_least_one<-NULL
+      # p=0
+      #Defining which rows will be sampled
+      if(is.null(seed.bootstrap)){
+            #At least's condition
+            while(is.null(at_least_one)){
+                  boots_index_row_new<-map(boots_index_row,~sample(1:.x,.x,replace=TRUE))#Generating the boots_sample index
+                  #Defining the Boots samples
+                  boots_sample<-map(boots_index_row_new,~train[.x,]) #Without feature susection
+                  #Defining out_of the bags_sample
+                  out_of_bag<-map(boots_index_row_new,~train[-unique(.x),])
+                  if(any(unlist(lapply(boots_sample,function(x){table(x[[class_name]])==0})))){
+                        at_least_one<-NULL
+                  }else{
+                        at_least_one<-1
+                  }
+            }
+      }else{
+            set.seed(seed.bootstrap)
+            #At least's condition
+            while(is.null(at_least_one)){
+                  boots_index_row_new<-map(boots_index_row,~sample(1:.x,.x,replace=TRUE))#Generating the boots_sample index
+                  #Defining the Boots samples
+                  boots_sample<-map(boots_index_row_new,~train[.x,]) #Without feature susection
+                  #Defining out_of the bags_sample
+                  out_of_bag<-map(boots_index_row_new,~train[-unique(.x),])
+
+                  #Verifying any zero
+                  if(any(unlist(lapply(boots_sample,function(x){table(x[[class_name]])==0})))){
+                        at_least_one<-NULL
+                  }else{
+                        at_least_one<-1
+                  }
+                  # p<-p+1
+                  # print(paste("Procurando amostra:",p))
+            }
+      }
+
+
+
+      #=====================================================
+
+      #=================Generating the models===============
+      #Calculating the models
+
+      #Here is defined which kernel will be used to heach model
+      random_kernel<-sample(c('rbfdot','polydot','laplacedot','vanilladot'),
+                            boots_size,replace = TRUE,prob = prob_weights)
+
+
+      if(automatic_tuning){
+            models<-map2(boots_sample,random_kernel,~ksvm(formula, data=.x,type="C-svc",
+                                                          kernel=if(.y=="vanilladot"){
+                                                                "polydot"
+                                                          }else{
+                                                                .y
+                                                          },
+                                                          C=cost,
+                                                          kpar=if(.y=='laplacedot' ||.y=='rbfdot')
+                                                          {
+                                                                "automatic"
+                                                          }else if(.y=='polydot'){
+                                                                list(degree=2,scale=poly_scale,offset=0)
+                                                          }else{
+                                                                list(degree=1,scale=poly_scale,offset=0)
+                                                          }))
+
+      }else{
+            models<-map2(boots_sample,random_kernel,~ksvm(formula, data=.x,type="C-svc",
+                                                          kernel=if(.y=="vanilladot"){
+                                                                "polydot"
+                                                          }else{
+                                                                .y
+                                                          },
+                                                          C=cost,
+                                                          kpar=if(.y=='laplacedot')
+                                                          {
+                                                                list(sigma=gamma_lap)
+                                                          }else if(.y=='rbfdot'){
+                                                                list(sigma=gamma_rbf)
+                                                          }else if(.y=='polydot'){
+                                                                list(degree=2,scale=poly_scale,offset=0)
+                                                          }else{
+                                                                list(degree=1,scale=poly_scale,offset=0)
+                                                          }))
+
+      }
+
+
+
+
+      #Prediction of each mode
+      predict<-map(models,~predict(.x,newdata=test))
+
+      #Prediction of OOB samples
+      predict_oobg<-map2(models,out_of_bag,~predict(.x,newdata=.y))
+
+      #Calculating weights from equation 10
+      kernel_weight<-map2(predict_oobg,out_of_bag,~table(.x,unlist(.y[,class_name]))) %>%
+            map_dbl(~sum(diag(.x))/sum(.x))
+
+
+      #Predictions finals
+      predict_df<-predict %>%                         #Generating a matrix with where the the rows are each bootstrap sample
+            unlist %>%                         #and the columns are each observation from test set
+            matrix(ncol=nrow(test),byrow = TRUE)
+
+
+      predict_df_new<-map(seq(1:nrow(test)),~predict_df[,.x])#Transposing the matrix
+
+      predict_df_new<-map(predict_df_new,~factor(.x,levels=levels(train[[class_name]])))
+
+      # predict_df_new_n<-map(predict_df_new,~as.numeric(.x))
+
+      #Creating a matrix to compute the scores of classes
+
+      aux_matrix<-matrix(NA,nrow=nrow(test),ncol=length(levels(train[[class_name]])))
+
+      colnames(aux_matrix)<-levels(test[[class_name]])
+
+      #Completing the voting matrix
+      for(i in 1:length(levels(train[[class_name]]))){
+            aux_matrix[,i]<-map_dbl(predict_df_new,~sum(kernel_weight[.x==levels(train[[class_name]])[i]]))
+      }
+
+      pred_df_fct<- apply(aux_matrix,1,function(x){colnames(aux_matrix)[which.max(x)]}) %>%  #Verifying the monst commmon prediction in the boostrap samples for each obs
+            as.factor()
+      #AVG_AGR(para calcular iremos transformar o vetor das matrizes de fatores)
+      levels_class<-levels(train[[class_name]])
+
+      #Transforma a matriz para calcular o agreement
+
+      agreeement_means_list<-list()
+
+      #Calculating the metrics
+      for(k in 1:((nrow(predict_df)-1))){
+            j=0
+            agreement_means<-numeric()
+            for(i in k:((nrow(predict_df)-1))){
+                  j=j+1
+                  agreement_means[j]<-mean(predict_df[i,]==predict_df[i+1,])
+            }
+            #Saving the upper triangle
+            agreeement_means_list[[k]]<-agreement_means
+      }
+
+      #Tira as medias
+      avg_agreement<-mean(unlist(agreeement_means_list))
+
+
+      #=============================
+      return(list(predicted=pred_df_fct,lambda_values=list(Lin_Kern=prob_weights[1],
+                                                           Pol_Kern=prob_weights[2],
+                                                           RBF_Kern=prob_weights[3],
+                                                           LAP_Kern=prob_weights[4]),
+                  model_params=list(class_name=class_name,
+                                    boots_size=boots_size,
+                                    cost=cost,
+                                    gamma_rbf=gamma_rbf,
+                                    gamma_lap=gamma_lap,
+                                    degree=degree),bootstrap_models=models,bootstrap_samples=boots_sample,agreement=avg_agreement))
+}
+
+
+
+#RM Code
+random_machines_svr<-function(formula,#Formula that will be used
+                              train,#The Training set
+                              test,#The test set
+                              boots_size=25, #B correspoding to the number of bootstrap samples
+                              cost=1,#Cost parameter of SVM
+                              gamma_rbf=1,#Gamma used in Table 1.
+                              gamma_lap=1,
+                              degree=2,#Degree used in Table 1.
+                              epsilon=0.1,beta=2,seed.bootstrap=NULL,
+                              loss_function,automatic_tuning=FALSE, #Choose a loss-fucntion
+                              poly_scale
+
+){
+
+      class_name<-as.character(formula[[2]])#The string corresponding to the variable that will be predicted
+
+
+
+      #Root Mean Squared Error Function
+      RMSE<-function(predicted,observed,epsilon=NULL){
+            min<-min(observed)
+            max<-max(observed)
+            sqrt(mean(unlist((predicted-observed)^2)))
+      }
+
+      #Probability associated with each kernel function
+
+
+      prob_weights<-list()
+
+      #The Kernel types used in the algorithm
+      kernel_type<-c('rbfdot','polydot','laplacedot','vanilladot')
+
+      #TUNING AUTOMÁTICO
+      if(automatic_tuning){
+
+            early_model<- map(kernel_type,~ksvm(formula,data=train,type="eps-svr",
+                                                kernel=if(.x=="vanilladot"){
+                                                      "polydot"
+                                                }else{
+                                                      .x
+                                                },
+                                                C=cost,
+                                                kpar=if(.x=='laplacedot' ||.x=='rbfdot')
+                                                {
+                                                      "automatic"
+                                                }else if(.x=='polydot'){
+                                                      list(degree=2,scale=poly_scale,offset=0)
+                                                }else{
+                                                      list(degree=1,scale=poly_scale,offset=0)
+                                                },
+                                                epsilon=epsilon))
+      }else{
+            #The early model that will calculate the probabilities that will be used during the sort process
+            early_model<-map(kernel_type,~ksvm(formula,data=train,type="eps-svr",
+                                               kernel=if(.x=="vanilladot"){
+                                                     "polydot"
+                                               }else{
+                                                     .x
+                                               },
+                                               C=cost,
+                                               kpar=if(.x=='laplacedot')
+                                               {
+                                                     list(sigma=gamma_lap)
+                                               }else if(.x=='rbfdot'){
+
+                                                     list(sigma=gamma_rbf)
+
+                                               }else if(.x=='polydot'){
+                                                     list(degree=2,scale=poly_scale,offset=0)
+                                               }else{
+                                                     list(degree=1,scale=poly_scale,offset=0)
+                                               },
+                                               epsilon=epsilon))
+      }
+      #Calculando o predict para cada modelo
+      predict<-lapply(early_model,function(x)predict(x,newdata=test))
+
+
+      #Calculating the weights (Equation 9)
+      rmse<-lapply(predict,function(x){loss_function(predicted=x,observed=test[,class_name],epsilon)}) %>% unlist
+      rmse<-rmse/sd(rmse)
+      # std_rmse<-rmse/(range(test[,class_name])[2]-range(test[,class_name])[1])
+      inv_rmse<-(exp(-rmse*beta))
+
+      prob_weights<-inv_rmse/sum(inv_rmse)
+      prob_weights<-ifelse(prob_weights<0,0,prob_weights)#To not heve negative values of probabilities
+
+
+      #----Defining the variables----
+      models<-rep(list(0),boots_size)#Creating the list of models
+      boots_sample<-list(rep(boots_size)) #Argument that will be passed in the map function
+      out_of_bag<-list(rep(boots_size)) #OOB samples object
+      boots_index_row<-list(nrow(train)) %>% rep(boots_size)
+
+      #====================================================
+
+      #======Selecting the Bootstraping samples============
+      #Defining which rows will be sampled
+      if(is.null(seed.bootstrap)){
+            boots_index_row<-map(boots_index_row,~sample(1:.x,.x,replace=TRUE))#Generating the boots_sample index
+      }else{
+            set.seed(seed.bootstrap)
+            boots_index_row<-map(boots_index_row,~sample(1:.x,.x,replace=TRUE))#Generating the boots_sample index
+      }
+
+      #Defining out_of the bags_sample
+      #Defining the Boots samples
+      boots_sample<-map(boots_index_row,~train[.x,]) #Without feature susection
+      out_of_bag<-map(boots_index_row,~train[-unique(.x),])
+
+      #=====================================================
+
+      #=================Generating the models===============
+      #Calculating the models
+
+      #Here is defined which kernel will be used to heach model
+      random_kernel<-sample(c('rbfdot','polydot','laplacedot','vanilladot'),
+                            boots_size,replace = TRUE,prob = prob_weights)
+
+      if(automatic_tuning){
+            models<-map2(boots_sample,random_kernel,~ksvm(formula, data=.x,type="eps-svr",
+                                                          kernel=if(.y=="vanilladot"){
+                                                                "polydot"
+                                                          }else{
+                                                                .y
+                                                          },
+                                                          C=cost,
+                                                          kpar=if(.y=='laplacedot' ||.y=='rbfdot')
+                                                          {
+                                                                "automatic"
+                                                          }else if(.y=='polydot'){
+                                                                list(degree=2,scale=poly_scale,offset=0)
+                                                          }else{
+                                                                list(degree=1,scale=poly_scale,offset=0)
+                                                          },
+                                                          epsilon=epsilon))
+
+      }else{
+            models<-map2(boots_sample,random_kernel,~ksvm(formula, data=.x,type="eps-svr",
+                                                          kernel=if(.y=="vanilladot"){
+                                                                "polydot"
+                                                          }else{
+                                                                .y
+                                                          },
+                                                          C=cost,
+                                                          kpar=if(.y=='laplacedot')
+                                                          {
+                                                                list(sigma=gamma_lap)
+                                                          }else if(.y=='rbfdot'){
+                                                                list(sigma=gamma_rbf)
+                                                          }else if(.y=='polydot'){
+                                                                list(degree=2,scale=poly_scale,offset=0)
+                                                          }else{
+                                                                list(degree=1,scale=poly_scale,offset=0)
+                                                          },epsilon=epsilon))
+
+      }
+
+
+      #Prediction of each mode
+      predict<-map(models,~predict(.x,newdata=test))
+
+      #Prediction of OOB samples
+      predict_oobg<-map2(models,out_of_bag,~predict(.x,newdata=.y))
+
+      #Calculating weights from equation 10
+      kernel_weight<-map2_dbl(predict_oobg,out_of_bag,~loss_function(predicted = .x,observed = .y[,class_name],epsilon)) #%>%
+      #./sd(.) #%>%
+      #map_dbl(~1/(1-exp(-.x*beta))^2)
+
+      boots_error<-map2_dbl(predict_oobg,out_of_bag,~loss_function(predicted = .x,observed = .y[,class_name],epsilon)) #%>%
+
+
+      kernel_weight<-(kernel_weight/sd(kernel_weight)) %>% map_dbl(~exp(-.x*beta))
+
+      kernel_weight<-kernel_weight/sum((kernel_weight))
+
+
+      #Predictions finals
+      predict_df<-predict %>%                         #Generating a matrix with where the the rows are each bootstrap sample
+            unlist %>%                         #and the columns are each observation from test set
+            matrix(ncol=nrow(test),byrow = TRUE)
+
+
+      correlation_models<-cor(t(predict_df))
+
+      correlation_measure<-mean(correlation_models[upper.tri(correlation_models)])
+
+      predict_df_new<-map(seq(1:nrow(test)),~predict_df[,.x])#Transposing the matrix
+
+
+      #Como associar o peso!
+
+      pred_df_fct<-map(predict_df_new,~.x*kernel_weight) %>% #Multiplying the weights
+            map_dbl(sum)
+
+
+      #=============================
+      return(list(predicted=pred_df_fct,lambda_values=list(Lin_Kern=prob_weights[4],
+                                                           Pol_Kern=prob_weights[2],
+                                                           RBF_Kern=prob_weights[1],
+                                                           LAP_Kern=prob_weights[3]),
+                  model_params=list(class_name=class_name,
+                                    boots_size=boots_size,
+                                    cost=cost,
+                                    gamma=gamma,
+                                    degree=degree),bootstrap_models=models,bootstrap_samples=boots_sample,probabilities=prob_weights,
+                  init_rmse=rmse,kernel_weight=kernel_weight,
+                  correlation_measure=correlation_measure,list_kernels=random_kernel,predict_oob=predict_oobg,botse=boots_error))
+}
+
+bagged_svr<-function(formula,#Formula that will be used
+                     train,#The Training set
+                     test,#The test set
+                     class_name,#The string corresponding to the variable that will be predicted
+                     boots_size=100, #B correspoding to the number of bootstrap samples
+                     cost=1,poly_scale,#Cost parameter of SVM
+                     kernel,#Kernel Function
+                     gamma=1,offset=1,#Gamma used in Table 1.
+                     degree=2,
+                     epsilon,seed.bootstrap=NULL,automatic_tuning=FALSE
+){
+      #Probability associated with each kernel function
+
+
+      #----Defining the variables----
+      models<-rep(list(0),boots_size)#Creating the list of models
+      boots_sample<-list(rep(boots_size)) #Argument that will be passed in the map function
+      out_of_bag<-list(rep(boots_size)) #OOB samples object
+      boots_index_row<-list(nrow(train)) %>% rep(boots_size)
+
+      #=============Col_Sample============
+
+      #======Selecting the Bootstraping samples============
+      #Defining which rows will be sampled
+      if(is.null(seed.bootstrap)){
+            boots_index_row<-map(boots_index_row,~sample(1:.x,.x,replace=TRUE))#Generating the boots_sample index
+      }else{
+            set.seed(seed.bootstrap)
+            boots_index_row<-map(boots_index_row,~sample(1:.x,.x,replace=TRUE))#Generating the boots_sample index
+      }
+
+      #Defining out_of the bags_sample
+      #Defining the Boots samples
+      boots_sample<-map(boots_index_row,~train[.x,]) #Without feature susection
+      out_of_bag<-map(boots_index_row,~train[-unique(.x),])
+
+      #=====================================================
+
+      #=================Generating the models===============
+      #Calculating the models
+
+      if(automatic_tuning){
+            models<-map(boots_sample,~ksvm(formula, data=.x,type="eps-svr",
+                                           kernel=if(kernel=="vanilladot"){
+                                                 "polydot"
+                                           }else{
+                                                 kernel
+                                           },
+                                           kpar=if(kernel=='laplacedot' ||kernel=='rbfdot')
+                                           {
+                                                 "automatic"
+                                           }else if(kernel=='polydot'){
+                                                 list(degree=degree,scale=poly_scale,offset=offset)
+                                           }else{
+                                                 list(degree=1,scale=poly_scale,offset=offset)
+                                           },C=cost,
+                                           ,epsilon=epsilon))
+
+
+      }else{
+            models<-map(boots_sample,~ksvm(formula, data=.x,type="eps-svr",
+                                           kernel=if(kernel=="vanilladot"){
+                                                 "polydot"
+                                           }else{
+                                                 kernel
+                                           },
+                                           C=cost,
+                                           kpar=if(kernel=='polydot'){
+                                                 list(degree=degree,scale=poly_scale,offset=offset)
+                                           }else if(kernel=='vanilladot'){
+                                                 list(degree=1,scale=poly_scale,offset=offset)
+                                           }else{
+                                                 list(sigma=gamma)
+                                           },epsilon=epsilon))
+
+      }
+
+
+      #Prediction of each mode
+      predict<-map(models,~predict(.x,newdata=test))
+
+
+      #Predictions finals
+      predict_df<-predict %>%                         #Generating a matrix with where the the rows are each bootstrap sample
+            unlist %>%                         #and the columns are each observation from test set
+            matrix(ncol=nrow(test),byrow = TRUE)
+
+
+      correlation_models<-cor(t(predict_df))
+
+      correlation_measure<-mean(correlation_models[upper.tri(correlation_models)])
+
+
+      predict_df_new<-map(seq(1:nrow(test)),~predict_df[,.x])#Transposing the matrix
+
+
+      #Como associar o peso!
+
+      pred_df_fct<-map_dbl(predict_df_new,mean)
+
+
+
+      #=============================
+      return(list(predicted=pred_df_fct,
+                  model_params=list(class_name=class_name,
+                                    boots_size=boots_size,
+                                    cost=cost,
+                                    gamma=gamma,
+                                    degree=degree),bootstrap_models=models,bootstrap_samples=boots_sample,
+                  correlation_measure=correlation_measure))
+}
+
+
+calculate_error<-function(list,resultado,metrica_error){
+      #Funcao e metrica de erro
+      aux<-resultado
+      split(aux$predicted,ceiling(seq_along(aux$predicted)/nrow(list[[1]]$test))) %>%
+            map2_dbl(list,~metrica_error(.x,.y$test$y)) %>% mean(na.rm=TRUE)
+}
+
+calculate_error_single<-function(list,modelo,metrica_error){
+      predictions<-map2(modelo,list,~predict(.x,newdata=.y$test))
+      result_error<-map2_dbl(predictions,list,~(RMSE(predicted =.x,observed = .y$test$y)))# %>% mean()
+      return(result_error)
+}
+
+
+#Root Mean Squared Error Function
+RMSE<-function(predicted,observed,epsilon=NULL){
+      min<-min(observed)
+      max<-max(observed)
+      sqrt(mean(unlist((predicted-observed)^2)))
+}
+
+hubber<-function(epsilon,observed,predicted){
+      mean( ifelse(abs(predicted-observed)>=epsilon,
+                   epsilon*abs(predicted-observed)-(epsilon^2)/2,#hubber condition #1
+                   0.5*(predicted-observed)^2) ) #hubber condition 2
+}
+
+
+#Standard Root Mean Squared Error Function
+SRMSE<-function(predicted,observed,epsilon=NULL){
+
+      mean(((predicted-observed)/observed)^2)
+}
+
+
+#E-senstive loss function (Vapnik)
+e_sensitive<-function(predicted,observed,epsilon){
+      mean( ifelse(abs(predicted-observed)>=epsilon,
+                   abs(predicted-observed)-epsilon,
+                   0) )
+}

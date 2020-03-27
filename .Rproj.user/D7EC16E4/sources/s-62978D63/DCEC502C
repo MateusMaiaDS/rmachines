@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1585280463525.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "12|2|201|0|\n203|40|281|0|\n286|48|290|0|\n292|45|296|0|\n307|50|311|0|\n327|2|475|0|\n477|41|518|0|\n",
+    "hash" : "0",
+    "id" : "DCEC502C",
+    "lastKnownWriteTime" : 1585331588,
+    "last_content_update" : 1585331588052,
+    "path" : "D:/my_computer/Est_ML_2020/rm_package/rm/R/rm.R",
+    "project_path" : "R/rm.R",
+    "properties" : {
+        "cursorPosition" : "3,8",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
