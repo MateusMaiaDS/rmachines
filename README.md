@@ -62,7 +62,7 @@ predict(mod_regression,newdata=cars)
 
 ## Acknowledgments
 
-The development of this ensemble algorithm and the r-package was builten jointly with the [Dr. Anderson Ara](http://www.mwstat.com/andersonara/) and Dr. [Samuel Macêdo](https://samuelmacedo.netlify.com/) 
+The development of this ensemble algorithm and the r-package was builten jointly with the [Dr. Anderson Ara](http://www.mwstat.com/andersonara/) and [Dr. Samuel Macêdo](https://samuelmacedo.netlify.com/) 
 
 
 ## About me
