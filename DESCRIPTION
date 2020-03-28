@@ -1,10 +1,10 @@
 Package: rm
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Random Machines: a package for a support vector ensemble based on random kernel space
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
+Author: Mateus Maia
+Maintainer: Mateus Maia <mateusmaia11@gmail.com>
+Description: A ensemble method for surpervised learning tasks.
     Use four spaces when indenting paragraphs within the Description.
 License: What license is it under?
 Encoding: UTF-8
