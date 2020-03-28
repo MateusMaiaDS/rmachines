@@ -1,5 +1,5 @@
 #Dependencies
-library(kernlab)
+#library(kernlab)
 
 #RM Code
 random_machines<-function(formula,#Formula that will be used
@@ -118,7 +118,7 @@ random_machines<-function(formula,#Formula that will be used
                   #Defining the Boots samples
                   boots_sample<-lapply(boots_index_row_new,function(x)train[x,]) #Without feature susection
                   #Defining out_of the bags_sample
-                  out_of_bag<-map(boots_index_row_new,function(x)train[-unique(x),])
+                  out_of_bag<-lapply(boots_index_row_new,function(x)train[-unique(x),])
                   if(any(unlist(lapply(boots_sample,function(x){table(x[[class_name]])==0})))){
                         at_least_one<-NULL
                   }else{
@@ -241,7 +241,7 @@ predict.rm_model<-function(mod,newdata){
 
         }else{
          #Prediction of each mode
-         predicted<-lapply(mod$models,function(x)predict(x,newdata=newdata))
+         predicted<-lapply(mod$models,function(x) predict(x,newdata=newdata))
 
          #Prediction of OOB samples
          predict_oobg<-mapply(mod$models,mod$out_of_bag,FUN=function(x,y){predict(x,newdata=y)})
@@ -408,10 +408,10 @@ regression_random_machines<-function(formula,#Formula that will be used
       #======Selecting the Bootstraping samples============
       #Defining which rows will be sampled
       if(is.null(seed.bootstrap)){
-            boots_index_row<-map(boots_index_row,~sample(1:.x,.x,replace=TRUE))#Generating the boots_sample index
+            boots_index_row<-lapply(boots_index_row,function(x)sample(1:x,x,replace=TRUE))#Generating the boots_sample index
       }else{
             set.seed(seed.bootstrap)
-            boots_index_row<-map(boots_index_row,~sample(1:.x,.x,replace=TRUE))#Generating the boots_sample index
+            boots_index_row<-lapply(boots_index_row,function(x)sample(1:x,x,replace=TRUE))#Generating the boots_sample index
       }
 
       #Defining out_of the bags_sample
