@@ -28,9 +28,9 @@ mod_classification<-random_machines(formula=Species~.,#Formula that will be used
                   degree=2, #Degree used in Table 1.,
                   seed.bootstrap=NULL, #Set.seed for bootstrap samples
                   automatic_tuning=FALSE, #Automatic tuning of kernel function's hyperparameters proposed by kernlab::ksvm
-                  poly_scale=1 #Scale parameter of Polynomial kernel function,
-                  gamma_rbf=1,#Gamma of Gaussian Kernel Function
-                  gamma_lap=1,#Gamma of Laplacian Kernel Function
+                  poly_scale=1, #Scale parameter of Polynomial kernel function,
+                  gamma_rbf=1,#Gamma of Gaussian Kernel Function,
+                  gamma_lap=1,#Gamma of Laplacian Kernel Function,
                   degree=2,# Polynomial Degree of Kernel Function,
                   offset=0)
 
@@ -60,3 +60,12 @@ mod_regresssion<-regression_random_machines(formula = dist~.,#Formula that will 
 
 predict(mod_regression,newdata=cars)
 ```
+
+### Acknowledgment
+
+The development of this ensemble algorithm and the r-package was builten jointly with the [Dr. Anderson Ara](http://www.mwstat.com/andersonara/) and Dr. [Samuel Macêdo](https://samuelmacedo.netlify.com/) 
+
+
+### About me
+
+For more resources about Statistics and Data Science please access [my site](https://learningfromdata.netlify.com/)
