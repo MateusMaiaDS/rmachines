@@ -8,7 +8,7 @@ To install the **Random Machines** package `rm` in the development version from 
 
 ```r
 # install.packages("devtools")
-devtools::install_github("r-spatial/leafpop")
+devtools::install_github("MateusMaiaDS/rm")
 ```
 
 ## Examples
