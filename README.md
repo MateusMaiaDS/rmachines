@@ -61,11 +61,11 @@ mod_regresssion<-regression_random_machines(formula = dist~.,#Formula that will 
 predict(mod_regression,newdata=cars)
 ```
 
-### Acknowledgment
+## Acknowledgments
 
 The development of this ensemble algorithm and the r-package was builten jointly with the [Dr. Anderson Ara](http://www.mwstat.com/andersonara/) and Dr. [Samuel Macêdo](https://samuelmacedo.netlify.com/) 
 
 
-### About me
+## About me
 
 For more resources about Statistics and Data Science please access [my site](https://learningfromdata.netlify.com/)
