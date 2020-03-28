@@ -25,7 +25,6 @@ mod_classification<-random_machines(formula=Species~.,#Formula that will be used
                   test=iris,#The Test set
                   boots_size=100, #B correspoding to the number of bootstrap samples
                   cost=1,#Cost parameter of SVM
-                  degree=2, #Degree used in Table 1.,
                   seed.bootstrap=NULL, #Set.seed for bootstrap samples
                   automatic_tuning=FALSE, #Automatic tuning of kernel function's hyperparameters proposed by kernlab::ksvm
                   poly_scale=1, #Scale parameter of Polynomial kernel function,
