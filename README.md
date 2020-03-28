@@ -6,10 +6,10 @@ Random Machines: a package for a support vector ensemble based on random kernel 
 
 To install the **Random Machines** package `rm` in the development version from GitHub, just use the command:
 
-`r
+```r
 # install.packages("devtools")
 devtools::install_github("r-spatial/leafpop")
-`
+```
 
 ## Examples
 
@@ -17,8 +17,9 @@ The ensemble method was developed for both classifiction and regression tasks. T
 
 ### Classification
 
-```
-#Classification example
+```r
+# Classification example
+
 mod_classification<-random_machines(formula=Species~.,#Formula that will be used
                   train=iris,#The Training set
                   test=iris,#The test set
@@ -35,8 +36,8 @@ predict(mod_classification,newdata=iris)
 
 ### Regression
 
-```
-#Regression example
+```r
+# Regression example
 mod_regresssion<-regression_random_machines(formula = dist~.,#Formula that will be used
                               train=cars,#The Training set
                               test=cars,#The test set
