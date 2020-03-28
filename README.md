@@ -22,12 +22,17 @@ The ensemble method was developed for both classifiction and regression tasks. T
 
 mod_classification<-random_machines(formula=Species~.,#Formula that will be used
                   train=iris,#The Training set
-                  test=iris,#The test set
-                  # class_name,#The string corresponding to the variable that will be predicted
+                  test=iris,#The Test set
                   boots_size=100, #B correspoding to the number of bootstrap samples
                   cost=1,#Cost parameter of SVM
                   degree=2, #Degree used in Table 1.,
-                  seed.bootstrap=NULL,automatic_tuning=FALSE,gamma_rbf=1,gamma_lap=1,poly_scale=1,offset=0)
+                  seed.bootstrap=NULL, #Set.seed for bootstrap samples
+                  automatic_tuning=FALSE, #Automatic tuning of kernel function's hyperparameters proposed by kernlab::ksvm
+                  poly_scale=1 #Scale parameter of Polynomial kernel function,
+                  gamma_rbf=1,#Gamma of Gaussian Kernel Function
+                  gamma_lap=1,#Gamma of Laplacian Kernel Function
+                  degree=2,# Polynomial Degree of Kernel Function,
+                  offset=0)
 
 
 predict(mod_classification,newdata=iris)
@@ -43,12 +48,15 @@ mod_regresssion<-regression_random_machines(formula = dist~.,#Formula that will 
                               test=cars,#The test set
                               boots_size=25, #B correspoding to the number of bootstrap samples
                               cost=1,#Cost parameter of SVM
-                              gamma_rbf=1,#Gamma used in Table 1.
-                              gamma_lap=1,
-                              degree=2,#Degree used in Table 1.
-                              epsilon=0.1,beta=2,seed.bootstrap=NULL,
-                              loss_function=RMSE,automatic_tuning=FALSE, #Choose a loss-fucntion
-                              poly_scale=1)
+                              gamma_rbf=1,#Gamma of Gaussian Kernel Function
+                              gamma_lap=1,#Gamma of Laplacian Kernel Function
+                              degree=2,# Polynomial Degree of Kernel Function
+                              epsilon=0.1, #Epsilon parameter of SVR model
+                              beta=2, #Beta parameter of Regression Random Machines
+                              seed.bootstrap=NULL, #Set.seed for bootstrap samples
+                              loss_function=RMSE, #Loss functions that will be used the options are: RMSE, hubber, SRMSE, e_sensitive
+                              automatic_tuning=FALSE, #Automatic tuning of kernel function's hyperparameters proposed by kernlab::ksvm
+                              poly_scale=1 #Scale parameter of Polynomial kernel function)
 
 predict(mod_regression,newdata=cars)
 ```
