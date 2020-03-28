@@ -1,10 +1,10 @@
 # Random Machines
-Random Machines: a package for a support vector ensemble based on random kernel space
+Random Machines: a package for a support vector ensemble based on random kernel space.
 
 
 ## Installation
 
-To install the **Random Machines** package `r rm` in the development version from GitHub, just use the command:
+To install the **Random Machines** package `rm` in the development version from GitHub, just use the command:
 
 `r
 # install.packages("devtools")
@@ -17,7 +17,7 @@ The ensemble method was developed for both classifiction and regression tasks. T
 
 ### Classification
 
-`r
+```
 #Classification example
 mod_classification<-random_machines(formula=Species~.,#Formula that will be used
                   train=iris,#The Training set
@@ -30,12 +30,12 @@ mod_classification<-random_machines(formula=Species~.,#Formula that will be used
 
 
 predict(mod_classification,newdata=iris)
-`
+```
 
 
 ### Regression
 
-`
+```
 #Regression example
 mod_regresssion<-regression_random_machines(formula = dist~.,#Formula that will be used
                               train=cars,#The Training set
@@ -50,4 +50,4 @@ mod_regresssion<-regression_random_machines(formula = dist~.,#Formula that will 
                               poly_scale=1)
 
 predict(mod_regression,newdata=cars)
-`
+```
