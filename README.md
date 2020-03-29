@@ -42,7 +42,7 @@ predict(mod_classification,newdata=iris)
 
 ```r
 # Regression example
-mod_regresssion<-regression_random_machines(formula = dist~.,#Formula that will be used
+mod_regression<-regression_random_machines(formula = dist~.,#Formula that will be used
                               train=cars,#The Training set
                               test=cars,#The test set
                               boots_size=25, #B correspoding to the number of bootstrap samples
@@ -55,7 +55,7 @@ mod_regresssion<-regression_random_machines(formula = dist~.,#Formula that will 
                               seed.bootstrap=NULL, #Set.seed for bootstrap samples
                               loss_function=RMSE, #Loss functions that will be used the options are: RMSE, hubber, SRMSE, e_sensitive
                               automatic_tuning=FALSE, #Automatic tuning of kernel function's hyperparameters proposed by kernlab::ksvm
-                              poly_scale=1 #Scale parameter of Polynomial kernel function)
+                              poly_scale=1) #Scale parameter of Polynomial kernel function.
 
 predict(mod_regression,newdata=cars)
 ```
