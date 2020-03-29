@@ -388,7 +388,7 @@ regression_random_machines<-function(formula,#Formula that will be used
 
 
       #Calculating the weights (Equation 9)
-      rmse<-lapply(predicted,function(x){loss_function(predicted=x,observed=test[[class_name]],epsilon)}) %>% unlist
+      rmse<-unlist(lapply(predicted,function(x){loss_function(predicted=x,observed=test[[class_name]],epsilon)}))
       names(rmse)<-c('rbfdot','polydot','laplacedot','vanilladot')
 
       rmse<-rmse/sd(rmse)
@@ -487,7 +487,7 @@ predict.rrm_model<-function(mod,newdata){
       predict_oobg<-mapply(mod$models,mod$out_of_bag,FUN=function(x,y){predict(x,newdata=y)})
 
       #Calculating weights from equation 10
-      kernel_weight<-mapply(predict_oobg,mod$out_of_bag,FUN=function(x,y){mod$loss_function(predicted = unlist(x),observed = y[[class_name]],epsilon)}) #%>%
+      kernel_weight<-mapply(predict_oobg,mod$out_of_bag,FUN=function(x,y){mod$loss_function(predicted = unlist(x),observed = y[[class_name]],epsilon)}) 
       #./sd(.) #%>%
       #map_dbl(~1/(1-exp(-.x*beta))^2)
 
