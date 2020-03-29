@@ -2,6 +2,9 @@
 ## author : alexandros karatzoglou
 ## updated : 08.02.06
 
+## TO ACESS THE ROOT REPISOTORY FROM THIS CODE PLEASE ACCESS: https://github.com/cran/kernlab
+
+
 setGeneric("ksvm", function(x, ...) standardGeneric("ksvm"))
 setMethod("ksvm",signature(x="formula"),
           function (x, data=NULL, ..., subset, na.action = na.omit, scaled = TRUE){
