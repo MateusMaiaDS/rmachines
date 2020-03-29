@@ -11,6 +11,7 @@ random_machines<-function(formula,#Formula that will be used
                           degree=2, #Degree used in Table 1.,
                           seed.bootstrap=NULL,automatic_tuning=FALSE,gamma_rbf=1,gamma_lap=1,poly_scale=1,offset=0
 ){
+  require(kernlab)
       #Probability associated with each kernel function
       class_name<- as.character(formula[[2]])
 
@@ -42,7 +43,7 @@ random_machines<-function(formula,#Formula that will be used
       #The Kernel types used in the algorithm
       kernel_type<-c('rbfdot','polydot','laplacedot','vanilladot')
 
-      #TUNING AUTOMÁTICO
+      #TUNING AUTOMÃTICO
       if(automatic_tuning){
 
             early_model<- lapply(kernel_type,function(x){kernlab::ksvm(formula,data=train,type="C-svc",
@@ -326,6 +327,7 @@ regression_random_machines<-function(formula,#Formula that will be used
                                      poly_scale
 
 ){
+      require(kernlab)
 
       class_name<-as.character(formula[[2]])#The string corresponding to the variable that will be predicted
 
@@ -337,7 +339,7 @@ regression_random_machines<-function(formula,#Formula that will be used
       #The Kernel types used in the algorithm
       kernel_type<-c('rbfdot','polydot','laplacedot','vanilladot')
 
-      #TUNING AUTOMÁTICO
+      #TUNING AUTOMÃTICO
 
       if(automatic_tuning){
 
