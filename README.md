@@ -1,5 +1,5 @@
 # Random Machines
-Random Machines: a package for a support vector ensemble based on random kernel space.
+Random Machines: a package for a support vector ensemble based on random kernel space. This package use the [kernlab](https://github.com/cran/kernlab) as dependency to calculate the support vector base learners.
 
 
 ## Installation
