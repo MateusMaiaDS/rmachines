@@ -16,23 +16,23 @@ random_machines<-function(formula,#Formula that will be used
 
       #Metrics
       mcc<-function(observed,predicted){
-         levels(observed)<-c(1,-1)
-         levels(predicted)<-c(1,-1)
-         confusion_matrix<-table(observed,predicted)
-         TP=confusion_matrix[1,1]
-         TN=confusion_matrix[2,2]
-         FP=confusion_matrix[2,1]
-         FN=confusion_matrix[1,2]
-         mcc<-(TP*TN-FP*FN)/sqrt((TP+FP+1e-5)*(TP+FN+1e-5)*(TN+FP+1e-5)*(TN+FN+1e-5))
-         return(mcc)
+            levels(observed)<-c(1,-1)
+            levels(predicted)<-c(1,-1)
+            confusion_matrix<-table(observed,predicted)
+            TP=confusion_matrix[1,1]
+            TN=confusion_matrix[2,2]
+            FP=confusion_matrix[2,1]
+            FN=confusion_matrix[1,2]
+            mcc<-(TP*TN-FP*FN)/sqrt((TP+FP+1e-5)*(TP+FN+1e-5)*(TN+FP+1e-5)*(TN+FN+1e-5))
+            return(mcc)
       }
 
       acc<-function(observed,predicted){
-         levels(observed)<-c(1,-1)
-         levels(predicted)<-c(1,-1)
-         confusion_matrix<-table(observed,predicted)
-         acc<-sum(diag(confusion_matrix))/sum(confusion_matrix)
-         return(acc)
+            levels(observed)<-c(1,-1)
+            levels(predicted)<-c(1,-1)
+            confusion_matrix<-table(observed,predicted)
+            acc<-sum(diag(confusion_matrix))/sum(confusion_matrix)
+            return(acc)
       }
 
 
@@ -42,45 +42,45 @@ random_machines<-function(formula,#Formula that will be used
       #The Kernel types used in the algorithm
       kernel_type<-c('rbfdot','polydot','laplacedot','vanilladot')
 
-      #TUNING AUTOMÃTICO
+      #TUNING AUTOMÁTICO
       if(automatic_tuning){
 
             early_model<- lapply(kernel_type,function(x){kernlab::ksvm(formula,data=train,type="C-svc",
-                                                kernel=if(x=="vanilladot"){
-                                                      "polydot"
-                                                }else{
-                                                      x
-                                                },
-                                                C=cost,
-                                                kpar=if(x=='laplacedot' ||x=='rbfdot')
-                                                {
-                                                      "automatic"
-                                                }else if(x=='polydot'){
-                                                      list(degree=degree,scale=poly_scale,offset=0)
-                                                }else{
-                                                      list(degree=1,scale=poly_scale,offset=0)
-                                                })})
+                                                                       kernel=if(x=="vanilladot"){
+                                                                             "polydot"
+                                                                       }else{
+                                                                             x
+                                                                       },
+                                                                       C=cost,
+                                                                       kpar=if(x=='laplacedot' ||x=='rbfdot')
+                                                                       {
+                                                                             "automatic"
+                                                                       }else if(x=='polydot'){
+                                                                             list(degree=degree,scale=poly_scale,offset=0)
+                                                                       }else{
+                                                                             list(degree=1,scale=poly_scale,offset=0)
+                                                                       })})
       }else{
             #The early model that will calculate the probabilities that will be used during the sort process
             early_model<-lapply(kernel_type,function(x){kernlab::ksvm(formula,data=train,type="C-svc",
-                                               kernel=if(x=="vanilladot"){
-                                                     "polydot"
-                                               }else{
-                                                     x
-                                               },
-                                               C=cost,
-                                               kpar=if(x=='laplacedot')
-                                               {
-                                                     list(sigma=gamma_lap)
-                                               }else if(x=='rbfdot'){
+                                                                      kernel=if(x=="vanilladot"){
+                                                                            "polydot"
+                                                                      }else{
+                                                                            x
+                                                                      },
+                                                                      C=cost,
+                                                                      kpar=if(x=='laplacedot')
+                                                                      {
+                                                                            list(sigma=gamma_lap)
+                                                                      }else if(x=='rbfdot'){
 
-                                                     list(sigma=gamma_rbf)
+                                                                            list(sigma=gamma_rbf)
 
-                                               }else if(x=='polydot'){
-                                                     list(degree=degree,scale=poly_scale,offset=0)
-                                               }else{
-                                                     list(degree=1,scale=poly_scale,offset=0)
-                                               })})
+                                                                      }else if(x=='polydot'){
+                                                                            list(degree=degree,scale=poly_scale,offset=0)
+                                                                      }else{
+                                                                            list(degree=1,scale=poly_scale,offset=0)
+                                                                      })})
       }
       #Calculando o predict para cada modelo
       predicted<-lapply(early_model,function(x)predict(x,newdata=test))
@@ -158,39 +158,39 @@ random_machines<-function(formula,#Formula that will be used
 
       if(automatic_tuning){
             models<-mapply(boots_sample,random_kernel,FUN = function(x,y){kernlab::ksvm(formula, data=x,type="C-svc",
-                                                          kernel=if(y=="vanilladot"){
-                                                                "polydot"
-                                                          }else{
-                                                                y
-                                                          },
-                                                          C=cost,
-                                                          kpar=if(y=='laplacedot' ||y=='rbfdot')
-                                                          {
-                                                                "automatic"
-                                                          }else if(y=='polydot'){
-                                                                list(degree=degree,scale=poly_scale,offset=0)
-                                                          }else{
-                                                                list(degree=1,scale=poly_scale,offset=0)
-                                                          })})
+                                                                                        kernel=if(y=="vanilladot"){
+                                                                                              "polydot"
+                                                                                        }else{
+                                                                                              y
+                                                                                        },
+                                                                                        C=cost,
+                                                                                        kpar=if(y=='laplacedot' ||y=='rbfdot')
+                                                                                        {
+                                                                                              "automatic"
+                                                                                        }else if(y=='polydot'){
+                                                                                              list(degree=degree,scale=poly_scale,offset=0)
+                                                                                        }else{
+                                                                                              list(degree=1,scale=poly_scale,offset=0)
+                                                                                        })})
 
       }else{
             models<-mapply(boots_sample,random_kernel,FUN=function(x,y)kernlab::ksvm(formula, data=x,type="C-svc",
-                                                          kernel=if(y=="vanilladot"){
-                                                                "polydot"
-                                                          }else{
-                                                                y
-                                                          },
-                                                          C=cost,
-                                                          kpar=if(y=='laplacedot')
-                                                          {
-                                                                list(sigma=gamma_lap)
-                                                          }else if(y=='rbfdot'){
-                                                                list(sigma=gamma_rbf)
-                                                          }else if(y=='polydot'){
-                                                                list(degree=degree,scale=poly_scale,offset=0)
-                                                          }else{
-                                                                list(degree=1,scale=poly_scale,offset=0)
-                                                          }))
+                                                                                     kernel=if(y=="vanilladot"){
+                                                                                           "polydot"
+                                                                                     }else{
+                                                                                           y
+                                                                                     },
+                                                                                     C=cost,
+                                                                                     kpar=if(y=='laplacedot')
+                                                                                     {
+                                                                                           list(sigma=gamma_lap)
+                                                                                     }else if(y=='rbfdot'){
+                                                                                           list(sigma=gamma_rbf)
+                                                                                     }else if(y=='polydot'){
+                                                                                           list(degree=degree,scale=poly_scale,offset=0)
+                                                                                     }else{
+                                                                                           list(degree=1,scale=poly_scale,offset=0)
+                                                                                     }))
 
       }
 
@@ -206,124 +206,124 @@ predict.rm_model<-function(mod,newdata){
       #print(newdata)
       class_name<- as.character(mod$formula[[2]])
 
-        if(length(unique(mod$boots_sample[[1]][[mod$formula[[2]]]]))>2){
-           predicted<-lapply(mod$models,function(x)predict(x,newdata=newdata))
+      if(length(unique(mod$boots_sample[[1]][[mod$formula[[2]]]]))>2){
+            predicted<-lapply(mod$models,function(x)predict(x,newdata=newdata))
 
-           #Prediction of OOB samples
-           predict_oobg<-mapply(mod$models,mod$out_of_bag,FUN=function(x,y){predict(x,newdata=y)})
+            #Prediction of OOB samples
+            predict_oobg<-mapply(mod$models,mod$out_of_bag,FUN=function(x,y){predict(x,newdata=y)})
 
-           #Calculating weights from equation 10
-           kernel_weight<-mapply(predict_oobg,mod$out_of_bag,FUN=function(x,y){table(x,y[[class_name]])},SIMPLIFY = FALSE)
+            #Calculating weights from equation 10
+            kernel_weight<-mapply(predict_oobg,mod$out_of_bag,FUN=function(x,y){table(x,y[[class_name]])},SIMPLIFY = FALSE)
 
-           kernel_weight<-unlist(lapply(kernel_weight,function(x)sum(diag(x))/sum(x)))
-
-
-           #Predictions finals
-           predict_df<-matrix(unlist(predicted),ncol=nrow(newdata),byrow = TRUE)#Generating a matrix with where the the rows are each bootstrap sample
-           #and the columns are each observation from test set
-
-           #AUX matrix
-           aux_matrix<-matrix(NA,nrow=nrow(newdata),ncol=length(levels(mod$boots_sample[[1]][[class_name]])))
-
-           colnames(aux_matrix)<-levels(mod$boots_sample[[1]][[class_name]])
+            kernel_weight<-unlist(lapply(kernel_weight,function(x)sum(diag(x))/sum(x)))
 
 
-           predict_df_new<-lapply(seq(1:nrow(newdata)),function(x)predict_df[,x])#Transposing the matrix
+            #Predictions finals
+            predict_df<-matrix(unlist(predicted),ncol=nrow(newdata),byrow = TRUE)#Generating a matrix with where the the rows are each bootstrap sample
+            #and the columns are each observation from test set
+
+            #AUX matrix
+            aux_matrix<-matrix(NA,nrow=nrow(newdata),ncol=length(levels(mod$boots_sample[[1]][[class_name]])))
+
+            colnames(aux_matrix)<-levels(mod$boots_sample[[1]][[class_name]])
 
 
-           #Completing the voting matrix
-           for(i in 1:length(levels(mod$boots_sample[[1]][[class_name]]))){
-              aux_matrix[,i]<-unlist(lapply(predict_df_new,function(x)sum(kernel_weight[x==levels(mod$boots_sample[[1]][[class_name]])[i]])))
-           }
-
-           pred_df_fct<- as.factor(apply(aux_matrix,1,function(x){colnames(aux_matrix)[which.max(x)]}))  #Verifying the monst commmon prediction in the boostrap samples for each obs
-           return(pred_df_fct)
-
-        }else{
-         #Prediction of each mode
-         predicted<-lapply(mod$models,function(x) predict(x,newdata=newdata))
-
-         #Prediction of OOB samples
-         predict_oobg<-mapply(mod$models,mod$out_of_bag,FUN=function(x,y){predict(x,newdata=y)})
-
-         #Calculating weights from equation 10
-         kernel_weight<-mapply(predict_oobg,mod$out_of_bag,FUN=function(x,y){table(x,y[[class_name]])},SIMPLIFY = FALSE)
-
-         kernel_weight<-unlist(lapply(kernel_weight,function(x)sum(diag(x))/sum(x)))
+            predict_df_new<-lapply(seq(1:nrow(newdata)),function(x)predict_df[,x])#Transposing the matrix
 
 
-         #Predictions finals
-         predict_df<-matrix(unlist(predicted),ncol=nrow(newdata),byrow = TRUE)#Generating a matrix with where the the rows are each bootstrap sample
-                                                  #and the columns are each observation from test set
+            #Completing the voting matrix
+            for(i in 1:length(levels(mod$boots_sample[[1]][[class_name]]))){
+                  aux_matrix[,i]<-unlist(lapply(predict_df_new,function(x)sum(kernel_weight[x==levels(mod$boots_sample[[1]][[class_name]])[i]])))
+            }
 
-         predict_df_new<-lapply(seq(1:nrow(newdata)),function(x){predict_df[,x]})#Transposing the matrix
+            pred_df_fct<- as.factor(apply(aux_matrix,1,function(x){colnames(aux_matrix)[which.max(x)]}))  #Verifying the monst commmon prediction in the boostrap samples for each obs
+            return(pred_df_fct)
 
-         pred_df_fct<-lapply(predict_df_new,function(x)ifelse(x==unlist(levels(newdata[[class_name]]))[1],1,-1)) #Verifying the monst commmon prediction in the boostrap samples for each obs
-         pred_df_fct<-lapply(pred_df_fct,function(x){sign(sum(x/(1-kernel_weight)^2))})  #Multiplying the weights
-         pred_df_fct<-as.factor(unlist(ifelse(pred_df_fct==1,levels(newdata[[class_name]][1]),levels(unlist(newdata[,class_name]))[2])))
+      }else{
+            #Prediction of each mode
+            predicted<-lapply(mod$models,function(x) predict(x,newdata=newdata))
 
-         #AVG_AGR(para calcular iremos transformar o vetor das matrizes de fatores)  (DOESN'T NEED TO BUILD A PACKAGE)
-         # levels_class<-levels(newdata[[class_name]])
-         #
-         # #Transforma a matriz para calcular o agreement
-         # pred_df_standard<-ifelse(predict_df==levels_class[[1]],1,-1)
-         # agreement_trees<-tcrossprod(pred_df_standard)
-         #
-         # #Padroniza a contagem de ocorrencia
-         # agreement_trees<-(agreement_trees+agreement_trees[1,1])/(2*agreement_trees[1,1])
-         #
-         # #Tira as medias
-         # avg_agreement<-mean(agreement_trees[lower.tri(agreement_trees,diag = FALSE)])
+            #Prediction of OOB samples
+            predict_oobg<-mapply(mod$models,mod$out_of_bag,FUN=function(x,y){predict(x,newdata=y)})
+
+            #Calculating weights from equation 10
+            kernel_weight<-mapply(predict_oobg,mod$out_of_bag,FUN=function(x,y){table(x,y[[class_name]])},SIMPLIFY = FALSE)
+
+            kernel_weight<-unlist(lapply(kernel_weight,function(x)sum(diag(x))/sum(x)))
 
 
-         #=============================
-         return(pred_df_fct)
-        }
+            #Predictions finals
+            predict_df<-matrix(unlist(predicted),ncol=nrow(newdata),byrow = TRUE)#Generating a matrix with where the the rows are each bootstrap sample
+            #and the columns are each observation from test set
+
+            predict_df_new<-lapply(seq(1:nrow(newdata)),function(x){predict_df[,x]})#Transposing the matrix
+
+            pred_df_fct<-lapply(predict_df_new,function(x)ifelse(x==unlist(levels(newdata[[class_name]]))[1],1,-1)) #Verifying the monst commmon prediction in the boostrap samples for each obs
+            pred_df_fct<-lapply(pred_df_fct,function(x){sign(sum(x/(1-kernel_weight)^2))})  #Multiplying the weights
+            pred_df_fct<-as.factor(unlist(ifelse(pred_df_fct==1,levels(newdata[[class_name]][1]),levels(unlist(newdata[,class_name]))[2])))
+
+            #AVG_AGR(para calcular iremos transformar o vetor das matrizes de fatores)  (DOESN'T NEED TO BUILD A PACKAGE)
+            # levels_class<-levels(newdata[[class_name]])
+            #
+            # #Transforma a matriz para calcular o agreement
+            # pred_df_standard<-ifelse(predict_df==levels_class[[1]],1,-1)
+            # agreement_trees<-tcrossprod(pred_df_standard)
+            #
+            # #Padroniza a contagem de ocorrencia
+            # agreement_trees<-(agreement_trees+agreement_trees[1,1])/(2*agreement_trees[1,1])
+            #
+            # #Tira as medias
+            # avg_agreement<-mean(agreement_trees[lower.tri(agreement_trees,diag = FALSE)])
+
+
+            #=============================
+            return(pred_df_fct)
+      }
 }
 
 #==============================================================
 
 
 RMSE<-function(predicted,observed,epsilon=NULL){
-   min<-min(observed)
-   max<-max(observed)
-   sqrt(mean(unlist((predicted-observed)^2)))
+      min<-min(observed)
+      max<-max(observed)
+      sqrt(mean(unlist((predicted-observed)^2)))
 }
 
 hubber<-function(epsilon,observed,predicted){
-   mean( ifelse(abs(predicted-observed)>=epsilon,
-                epsilon*abs(predicted-observed)-(epsilon^2)/2,#hubber condition #1
-                0.5*(predicted-observed)^2) ) #hubber condition 2
+      mean( ifelse(abs(predicted-observed)>=epsilon,
+                   epsilon*abs(predicted-observed)-(epsilon^2)/2,#hubber condition #1
+                   0.5*(predicted-observed)^2) ) #hubber condition 2
 }
 
 
 #Standard Root Mean Squared Error Function
 SRMSE<-function(predicted,observed,epsilon=NULL){
 
-   mean(((predicted-observed)/observed)^2)
+      mean(((predicted-observed)/observed)^2)
 }
 
 
 #E-senstive loss function (Vapnik)
 e_sensitive<-function(predicted,observed,epsilon){
-   mean( ifelse(abs(predicted-observed)>=epsilon,
-                abs(predicted-observed)-epsilon,
-                0) )
+      mean( ifelse(abs(predicted-observed)>=epsilon,
+                   abs(predicted-observed)-epsilon,
+                   0) )
 }
 
 
 #RM Code
 regression_random_machines<-function(formula,#Formula that will be used
-                              train,#The Training set
-                              test,#The test set
-                              boots_size=25, #B correspoding to the number of bootstrap samples
-                              cost=1,#Cost parameter of SVM
-                              gamma_rbf=1,#Gamma used in Table 1.
-                              gamma_lap=1,
-                              degree=2,#Degree used in Table 1.
-                              epsilon=0.1,beta=2,seed.bootstrap=NULL,
-                              loss_function=RMSE,automatic_tuning=FALSE, #Choose a loss-fucntion
-                              poly_scale
+                                     train,#The Training set
+                                     test,#The test set
+                                     boots_size=25, #B correspoding to the number of bootstrap samples
+                                     cost=1,#Cost parameter of SVM
+                                     gamma_rbf=1,#Gamma used in Table 1.
+                                     gamma_lap=1,
+                                     degree=2,#Degree used in Table 1.
+                                     epsilon=0.1,beta=2,seed.bootstrap=NULL,
+                                     loss_function=RMSE,automatic_tuning=FALSE, #Choose a loss-fucntion
+                                     poly_scale
 
 ){
 
@@ -337,47 +337,47 @@ regression_random_machines<-function(formula,#Formula that will be used
       #The Kernel types used in the algorithm
       kernel_type<-c('rbfdot','polydot','laplacedot','vanilladot')
 
-      #TUNING AUTOMÃTICO
+      #TUNING AUTOMÁTICO
 
       if(automatic_tuning){
 
-         early_model<- lapply(kernel_type,function(x){kernlab::ksvm(formula,data=train,type="C-svc",
-                                                           kernel=if(x=="vanilladot"){
-                                                              "polydot"
-                                                           }else{
-                                                              x
-                                                           },
-                                                           C=cost,
-                                                           kpar=if(x=='laplacedot' ||x=='rbfdot')
-                                                           {
-                                                              "automatic"
-                                                           }else if(x=='polydot'){
-                                                              list(degree=degree,scale=poly_scale,offset=0)
-                                                           }else{
-                                                              list(degree=1,scale=poly_scale,offset=0)
-                                                           })})
+            early_model<- lapply(kernel_type,function(x){kernlab::ksvm(formula,data=train,type="C-svc",
+                                                                       kernel=if(x=="vanilladot"){
+                                                                             "polydot"
+                                                                       }else{
+                                                                             x
+                                                                       },
+                                                                       C=cost,
+                                                                       kpar=if(x=='laplacedot' ||x=='rbfdot')
+                                                                       {
+                                                                             "automatic"
+                                                                       }else if(x=='polydot'){
+                                                                             list(degree=degree,scale=poly_scale,offset=0)
+                                                                       }else{
+                                                                             list(degree=1,scale=poly_scale,offset=0)
+                                                                       })})
       }else{
-         #The early model that will calculate the probabilities that will be used during the sort process
-         early_model<-lapply(kernel_type,function(x){kernlab::ksvm(formula,data=train,type="eps-svr",
-                                                          kernel=if(x=="vanilladot"){
-                                                             "polydot"
-                                                          }else{
-                                                             x
-                                                          },
-                                                          C=cost,
-                                                          kpar=if(x=='laplacedot')
-                                                          {
-                                                             list(sigma=gamma_lap)
-                                                          }else if(x=='rbfdot'){
+            #The early model that will calculate the probabilities that will be used during the sort process
+            early_model<-lapply(kernel_type,function(x){kernlab::ksvm(formula,data=train,type="eps-svr",
+                                                                      kernel=if(x=="vanilladot"){
+                                                                            "polydot"
+                                                                      }else{
+                                                                            x
+                                                                      },
+                                                                      C=cost,
+                                                                      kpar=if(x=='laplacedot')
+                                                                      {
+                                                                            list(sigma=gamma_lap)
+                                                                      }else if(x=='rbfdot'){
 
-                                                             list(sigma=gamma_rbf)
+                                                                            list(sigma=gamma_rbf)
 
-                                                          }else if(x=='polydot'){
-                                                             list(degree=degree,scale=poly_scale,offset=0)
-                                                          }else{
-                                                             list(degree=1,scale=poly_scale,offset=0)
-                                                          },
-                                                          epsilon=epsilon)})
+                                                                      }else if(x=='polydot'){
+                                                                            list(degree=degree,scale=poly_scale,offset=0)
+                                                                      }else{
+                                                                            list(degree=1,scale=poly_scale,offset=0)
+                                                                      },
+                                                                      epsilon=epsilon)})
       }
 
 
@@ -430,41 +430,41 @@ regression_random_machines<-function(formula,#Formula that will be used
 
 
       if(automatic_tuning){
-         models<-mapply(boots_sample,random_kernel,FUN = function(x,y){kernlab::ksvm(formula, data=x,type="eps-svr",
-                                                                            kernel=if(y=="vanilladot"){
-                                                                               "polydot"
-                                                                            }else{
-                                                                               y
-                                                                            },
-                                                                            C=cost,
-                                                                            kpar=if(y=='laplacedot' ||y=='rbfdot')
-                                                                            {
-                                                                               "automatic"
-                                                                            }else if(y=='polydot'){
-                                                                               list(degree=2,scale=poly_scale,offset=0)
-                                                                            }else{
-                                                                               list(degree=1,scale=poly_scale,offset=0)
-                                                                            },
-                                                                            epsilon=epsilon)})
+            models<-mapply(boots_sample,random_kernel,FUN = function(x,y){kernlab::ksvm(formula, data=x,type="eps-svr",
+                                                                                        kernel=if(y=="vanilladot"){
+                                                                                              "polydot"
+                                                                                        }else{
+                                                                                              y
+                                                                                        },
+                                                                                        C=cost,
+                                                                                        kpar=if(y=='laplacedot' ||y=='rbfdot')
+                                                                                        {
+                                                                                              "automatic"
+                                                                                        }else if(y=='polydot'){
+                                                                                              list(degree=2,scale=poly_scale,offset=0)
+                                                                                        }else{
+                                                                                              list(degree=1,scale=poly_scale,offset=0)
+                                                                                        },
+                                                                                        epsilon=epsilon)})
 
       }else{
-         models<-mapply(boots_sample,random_kernel,FUN=function(x,y)kernlab::ksvm(formula, data=x,type="eps-svr",
-                                                                         kernel=if(y=="vanilladot"){
-                                                                            "polydot"
-                                                                         }else{
-                                                                            y
-                                                                         },
-                                                                         C=cost,
-                                                                         kpar=if(y=='laplacedot')
-                                                                         {
-                                                                            list(sigma=gamma_lap)
-                                                                         }else if(y=='rbfdot'){
-                                                                            list(sigma=gamma_rbf)
-                                                                         }else if(y=='polydot'){
-                                                                            list(degree=2,scale=poly_scale,offset=0)
-                                                                         }else{
-                                                                            list(degree=1,scale=poly_scale,offset=0)
-                                                                         },epsilon=epsilon))
+            models<-mapply(boots_sample,random_kernel,FUN=function(x,y)kernlab::ksvm(formula, data=x,type="eps-svr",
+                                                                                     kernel=if(y=="vanilladot"){
+                                                                                           "polydot"
+                                                                                     }else{
+                                                                                           y
+                                                                                     },
+                                                                                     C=cost,
+                                                                                     kpar=if(y=='laplacedot')
+                                                                                     {
+                                                                                           list(sigma=gamma_lap)
+                                                                                     }else if(y=='rbfdot'){
+                                                                                           list(sigma=gamma_rbf)
+                                                                                     }else if(y=='polydot'){
+                                                                                           list(degree=2,scale=poly_scale,offset=0)
+                                                                                     }else{
+                                                                                           list(degree=1,scale=poly_scale,offset=0)
+                                                                                     },epsilon=epsilon))
 
       }
 
