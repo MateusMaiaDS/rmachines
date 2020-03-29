@@ -4,11 +4,11 @@ Random Machines: a package for a support vector ensemble based on random kernel 
 
 ## Installation
 
-To install the **Random Machines** package `rm` in the development version from GitHub, just use the command:
+To install the **Random Machines** package `rmachines` in the development version from GitHub, just use the command:
 
 ```r
 # install.packages("devtools")
-devtools::install_github("MateusMaiaDS/rm")
+devtools::install_github("MateusMaiaDS/rmachines")
 ```
 
 ## Examples
