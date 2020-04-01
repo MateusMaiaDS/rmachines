@@ -1,4 +1,4 @@
-Package: rm
+Package: rmachines
 Type: Package
 Title: Random Machines: a package for a support vector ensemble based on random kernel space
 Version: 0.1.0
