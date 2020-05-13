@@ -65,6 +65,14 @@ predict(mod_regression,newdata=cars)
 The development of this ensemble algorithm and the r-package was builten jointly with the [Dr. Anderson Ara](http://www.mwstat.com/andersonara/) and [Dr. Samuel Macêdo](https://samuelmacedo.netlify.com/) 
 
 
+## Bibliograpy
+
+To learn more about the methods and how they are work please check.
+
+Ara, Anderson, et al. "Random Machines Regression Approach: an ensemble support vector regression model with free kernel choice." arXiv preprint arXiv:2003.12643 (2020). [ArXiV Link](https://arxiv.org/abs/2003.12643)
+
+Ara, Anderson, et al. "Random Machines: A bagged-weighted support vector model with free kernel choice." arXiv preprint arXiv:1911.09411 (2019). [ArXiV Link] https://arxiv.org/abs/1911.09411
+
 ## About me
 
 For more resources about Statistics and Data Science please access [my site](https://learningfromdata.netlify.com/)
