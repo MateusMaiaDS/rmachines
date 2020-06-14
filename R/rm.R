@@ -341,7 +341,7 @@ regression_random_machines<-function(formula,#Formula that will be used
 
       if(automatic_tuning){
 
-            early_model<- lapply(kernel_type,function(x){kernlab::ksvm(formula,data=train,type="C-svc",
+            early_model<- lapply(kernel_type,function(x){kernlab::ksvm(formula,data=train,type="eps-svr",
                                                                        kernel=if(x=="vanilladot"){
                                                                              "polydot"
                                                                        }else{
