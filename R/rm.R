@@ -284,7 +284,7 @@ predict.rm_model<-function(mod,newdata){
 #==============================================================
 
 
-RMSE<-function(predicted,observed,epsilon=NULL){
+RMSE_function<-function(predicted,observed,epsilon=NULL){
       min<-min(observed)
       max<-max(observed)
       sqrt(mean(unlist((predicted-observed)^2)))
@@ -298,7 +298,7 @@ hubber<-function(epsilon,observed,predicted){
 
 
 #Standard Root Mean Squared Error Function
-SRMSE<-function(predicted,observed,epsilon=NULL){
+SRMSE_function<-function(predicted,observed,epsilon=NULL){
 
       mean(((predicted-observed)/observed)^2)
 }
@@ -322,7 +322,7 @@ regression_random_machines<-function(formula,#Formula that will be used
                                      gamma_lap=1,
                                      degree=2,#Degree used in Table 1.
                                      epsilon=0.1,beta=2,seed.bootstrap=NULL,
-                                     loss_function=RMSE,automatic_tuning=FALSE, #Choose a loss-fucntion
+                                     loss_function=RMSE_function,automatic_tuning=FALSE, #Choose a loss-fucntion
                                      poly_scale
 
 ){
@@ -485,7 +485,7 @@ predict.rrm_model<-function(mod,newdata){
       predict_oobg<-mapply(mod$models,mod$out_of_bag,FUN=function(x,y){predict(x,newdata=y)})
 
       #Calculating weights from equation 10
-      kernel_weight<-mapply(predict_oobg,mod$out_of_bag,FUN=function(x,y){mod$loss_function(predicted = unlist(x),observed = y[[class_name]],epsilon)}) 
+      kernel_weight<-mapply(predict_oobg,mod$out_of_bag,FUN=function(x,y){mod$loss_function(predicted = unlist(x),observed = y[[class_name]],epsilon)})
       #./sd(.) #%>%
       #map_dbl(~1/(1-exp(-.x*beta))^2)
 
