@@ -34,7 +34,7 @@ mod_classification<-random_machines(formula=Species~.,#Formula that will be used
                   offset=0)
 
 
-predict.rm(mod_classification,newdata=iris)
+predict.rm_model(mod_classification,newdata=iris)
 ```
 
 
@@ -57,7 +57,7 @@ mod_regression<-regression_random_machines(formula = dist~.,#Formula that will b
                               automatic_tuning=FALSE, #Automatic tuning of kernel function's hyperparameters proposed by kernlab::ksvm
                               poly_scale=1) #Scale parameter of Polynomial kernel function.
 
-predict.rrm(mod_regression,newdata=cars)
+predict.rrm_model(mod_regression,newdata=cars)
 ```
 
 ## Acknowledgments
