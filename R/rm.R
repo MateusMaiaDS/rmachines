@@ -323,7 +323,7 @@ regression_random_machines<-function(formula,#Formula that will be used
                                      degree=2,#Degree used in Table 1.
                                      epsilon=0.1,beta=2,seed.bootstrap=NULL,
                                      loss_function=RMSE_function,automatic_tuning=FALSE, #Choose a loss-fucntion
-                                     poly_scale
+                                     poly_scale=1
 
 ){
 
