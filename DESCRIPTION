@@ -12,4 +12,5 @@ LazyData: true
 Imports:
     kernlab,
     magrittr,
-    dplyr
+    dplyr,
+    purrr
