@@ -315,16 +315,16 @@ random_machines<-function(formula,#Formula that will be used
 }
 
 
-result<-random_machines(formula=class~.,#Formula that will be used
-                        train=train_data,#The Training set
-                        validation = validation_data,#The test set
-                        test_new = test_data,
-                        boots_size=100, #B correspoding to the number of bootstrap samples
-                        cost=1,#Cost parameter of SVM
-                        gamma_rbf = 1,#Gamma used in Table 1.
-                        degree=2, #Degree used in Table 1.
-                        gamma_lap = 1,automatic_tuning = TRUE
-)
+# result<-random_machines(formula=class~.,#Formula that will be used
+#                         train=train_data,#The Training set
+#                         validation = validation_data,#The test set
+#                         test_new = test_data,
+#                         boots_size=100, #B correspoding to the number of bootstrap samples
+#                         cost=1,#Cost parameter of SVM
+#                         gamma_rbf = 1,#Gamma used in Table 1.
+#                         degree=2, #Degree used in Table 1.
+#                         gamma_lap = 1,automatic_tuning = TRUE
+# )
 
 # Return rpredictions from the testset
 predict_rm_model<-function(mod){
