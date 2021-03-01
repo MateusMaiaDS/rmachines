@@ -201,7 +201,7 @@ random_machines<-function(formula,#Formula that will be used
 
 }
 
-predict.rm_model<-function(mod,newdata){
+predict_rm_model<-function(mod,newdata){
       #UseMethod("predict",x)
       #print(newdata)
       class_name<- as.character(mod$formula[[2]])
@@ -475,7 +475,7 @@ regression_random_machines<-function(formula,#Formula that will be used
 
 }
 
-predict.rrm_model<-function(mod,newdata){
+predict_rrm_model<-function(mod,newdata){
 
       class_name<- as.character(mod$formula[[2]])
       #Prediction of each mode
