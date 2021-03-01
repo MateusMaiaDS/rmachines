@@ -1,2 +1,2 @@
 exportPattern("^[[:alpha:]]+")
-importFrom(kernlab)
+importFrom(kernlab, dplyr, magrittr)
