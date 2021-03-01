@@ -1,5 +1,5 @@
 #Dependencies
-#library(kernlab)
+library(kernlab)
 
 #RM Code
 random_machines<-function(formula,#Formula that will be used
