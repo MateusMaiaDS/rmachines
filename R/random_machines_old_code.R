@@ -144,7 +144,7 @@ random_machines<-function(formula,#Formula that will be used
                                                        }))
   }
   #Calculando o predict para cada modelo
-  predict<-purrr::map(early_model,~ksvm::predict(.x,newdata=test))
+  predict<-purrr::map(early_model,~kernlab::predict(.x,newdata=test))
   
   
   #Calculating the weights (Equation 9)
@@ -257,17 +257,17 @@ random_machines<-function(formula,#Formula that will be used
   
   
   #Prediction of each mode
-  predict<-purrr::map(models,~ksvm::predict(.x,newdata=test))
+  predict<-purrr::map(models,~kernlab::predict(.x,newdata=test))
   
   #Prediction of OOB samples
-  predict_oobg<-purrr::map2(models,out_of_bag,~ksvm::predict(.x,newdata=.y))
+  predict_oobg<-purrr::map2(models,out_of_bag,~kernlab::predict(.x,newdata=.y))
   
   #Calculating weights from equation 10
   kernel_weight<-purrr::map2(predict_oobg,out_of_bag,~table(.x,unlist(.y[,class_name]))) %>%
     purrr::map_dbl(~sum(diag(.x))/sum(.x))
   
   #Prediction of each mode test_new
-  predict_new<-purrr::map(models,~ksvm::predict(.x,newdata=test_new))
+  predict_new<-purrr::map(models,~kernlab::predict(.x,newdata=test_new))
   
   
   #Predictions finals
