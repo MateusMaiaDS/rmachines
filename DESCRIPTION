@@ -11,6 +11,7 @@ Encoding: UTF-8
 LazyData: true
 Imports:
     kernlab,
+    methods,
     magrittr,
     dplyr,
     purrr
