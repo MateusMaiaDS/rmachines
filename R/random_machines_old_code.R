@@ -519,13 +519,13 @@ regression_random_machines<-function(formula,#Formula that will be used
       }
       
       model_result<-list(models=models,boots_sample=boots_sample,out_of_bag=out_of_bag,kernels=kernel_type,std_rmse=rmse,
-                         lambda_values=prob_weights,formula=formula,loss_function=loss_function,beta=beta)
+                         lambda_values=prob_weights,formula=formula,loss_function=loss_function,beta=beta,test_new=test_new)
       attr(model_result,"class")<-"rrm_model"
       return(model_result)
       
 }
 
-predict_rrm_model<-function(mod,newdata){
+predict_rrm_model<-function(mod){
       
       class_name<- as.character(mod$formula[[2]])
       #Prediction of each mode
