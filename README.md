@@ -23,7 +23,7 @@ The ensemble method was developed for both classifiction and regression tasks. T
 mod_classification<-random_machines(formula=Species~.,#Formula that will be used
                   train=iris,#The Training set
                   validation=iris,#The validation set
-                  test=iris,# The test set
+                  test_new=iris,# The test set
                   boots_size=100, #B correspoding to the number of bootstrap samples
                   cost=1,#Cost parameter of SVM
                   seed.bootstrap=NULL, #Set.seed for bootstrap samples
@@ -45,7 +45,8 @@ predict_rm_model(mod_classification)
 # Regression example
 mod_regression<-regression_random_machines(formula = dist~.,#Formula that will be used
                               train=cars,#The Training set
-                              test=cars,#The test set
+                              validation=cars, # The Validation set
+                              test_new=cars,#The test set
                               boots_size=25, #B correspoding to the number of bootstrap samples
                               cost=1,#Cost parameter of SVM
                               gamma_rbf=1,#Gamma of Gaussian Kernel Function
@@ -58,7 +59,7 @@ mod_regression<-regression_random_machines(formula = dist~.,#Formula that will b
                               automatic_tuning=FALSE, #Automatic tuning of kernel function's hyperparameters proposed by kernlab::ksvm
                               poly_scale=1) #Scale parameter of Polynomial kernel function.
 
-predict_rrm_model(mod_regression,newdata=cars)
+predict_rrm_model(mod_regression)
 ```
 
 ## Acknowledgments
