@@ -496,7 +496,7 @@ predict_rrm_model<-function(mod,newdata){
       predicted<-lapply(mod$models,function(x)predict(x,newdata=mod$test_new))
       
       #Prediction of OOB samples
-      predict_oobg<-mapply(mod$models,mod$out_of_bag,FUN=function(x,y){predict(x,mod$test_new=y)})
+      predict_oobg<-mapply(mod$models,mod$out_of_bag,FUN=function(x,y){predict(x,newdata=y)})
       
       #Calculating weights from equation 10
       kernel_weight<-mapply(predict_oobg,mod$out_of_bag,FUN=function(x,y){mod$loss_function(predicted = unlist(x),observed = y[[class_name]],epsilon)})
