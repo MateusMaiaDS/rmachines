@@ -97,6 +97,85 @@ class_sim_scenario_three <- function(n, d, ratio, seed =  NULL){
   
 }
 
+### Regressions cases
+reg_sim_scenario_one <- function(n,seed= NULL){
+  
+  # Setting the seed.
+  set.seed(seed)
+    
+  # Generating the x
+  x <- replicate(2,runif(n,min = -1,max = 1))
+  colnames(x) <- paste0("x.",1:2)
+  
+  # Generating the y
+  y  <- x[,1]^2 + exp(-x[,2]^2) + rnorm(n = n,mean = 0,sd = sqrt(0.25))
+  
+  return(data.frame(x,y=y))
+}
+
+reg_sim_scenario_two <- function(n,seed= NULL){
+  
+  # Setting the seed.
+  set.seed(seed)
+  
+  # Generating the x
+  x <- replicate(8,runif(n,min = -1,max = 1))
+  colnames(x) <- paste0("x.",1:8)
+  
+  # Generating the y
+  y  <- x[,1]*x[,2] + x[,3]^2 -x[,4]*x[,7] +x[,5]*x[,8] -x[,6]^2 + rnorm(n = n,mean = 0,sd = sqrt(0.5))
+  
+  return(data.frame(x,y=y))
+}
+
+
+reg_sim_scenario_three <- function(n,seed= NULL){
+  
+  # Setting the seed.
+  set.seed(seed)
+  
+  # Generating the x
+  x <- replicate(4,runif(n,min = -1,max = 1))
+  colnames(x) <- paste0("x.",1:4)
+  
+  # Generating the y
+  y  <- -sin(x[,1]) + x[,4]^2 + x[,3] - exp(-x[,4]^2) + rnorm(n = n,mean = 0,sd = sqrt(0.5))
+  
+  return(data.frame(x,y=y))
+}
+
+reg_sim_scenario_four <- function(n,seed= NULL){
+  
+  # Setting the seed.
+  set.seed(seed)
+  
+  # Generating the x
+  x <- replicate(6,runif(n,min = -1,max = 1))
+  colnames(x) <- paste0("x.",1:6)
+  
+  # Generating the y
+  y  <- x[,1]^2 + (x[,2]^2)*x[,3]*exp(-abs(x[,4])) + x[,6] - x[,5]  + rnorm(n = n,mean = 0,sd = sqrt(0.5))
+  
+  return(data.frame(x,y=y))
+}
+
+
+reg_sim_scenario_five <- function(n,seed= NULL){
+  
+  # Setting the seed.
+  set.seed(seed)
+  
+  # Generating the x
+  x <- replicate(6,rnorm(n = n))
+  colnames(x) <- paste0("x.",1:6)
+  
+  # Generating the y
+  y  <- x[,1] + 0.707*x[,2]^2 + 2*ifelse(x[,3]>0,1,0) + 0.873*log(abs(x[,1]))*abs(x[,3]) + 0.894*x[,2]*x[,4] +
+    2*ifelse(x[,5]>0,1,0) + 0.464*exp(x[,6]) + rnorm(n = n,mean = 0,sd = sqrt(1))
+  
+  return(data.frame(x,y=y))
+}
+
 # ====================================================== #
 
 
