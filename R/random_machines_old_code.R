@@ -1,3 +1,106 @@
+# ============ SIMULATIONS FUNCTIONS ================ #
+
+# Function for the first simulation scenario
+class_sim_scenarion_one <- function(n,p,ratio,seed=NULL){
+  
+  # Setting the seed
+  set.seed(seed)
+  
+  # Setting the number of observations from the first data set
+  n_a <- round(n*abs(1-ratio))
+  n_b <- round(n*ratio)
+  
+  # Generating values from the X observations
+  x_a <- replicate(p,rnorm(n_a,mean = 0,sd = 1))
+  colnames(x_a) <- paste("x",1:p)
+  
+  x_b <- replicate(p,rnorm(n_b,mean = 4,sd = 1))
+  colnames(x_b) <- paste("x",1:p)
+  
+  # Formating the complete dataset
+  x <- rbind(x_a,x_b)
+  y <- as.factor(c(rep("A",n_a),rep("B",n_b)))
+  
+  simulated_data <- data.frame(x,y)
+  
+  return(simulated_data[sample(nrow(simulated_data)),])
+}
+
+# Function for the first simulation scenario
+class_sim_scenarion_two <- function(n,p,ratio,seed=NULL){
+  
+  # Setting the seed
+  set.seed(seed)
+  
+  # Setting the number of observations from the first data set
+  n_a <- round(n*abs(1-ratio))
+  n_b <- round(n*ratio)
+  
+  # Generating values from the X observations
+  x_a <- replicate(p,rnorm(n_a,mean = 0,sd = 1))
+  colnames(x_a) <- paste("x",1:p)
+  
+  x_b <- replicate(p,rnorm(n_b,mean = 2,sd = 1))
+  colnames(x_b) <- paste("x",1:p)
+  
+  # Formating the complete dataset
+  x <- rbind(x_a,x_b)
+  y <- as.factor(c(rep("A",n_a),rep("B",n_b)))
+  
+  simulated_data <- data.frame(x,y)
+  
+  return(simulated_data[sample(nrow(simulated_data)),])
+}
+
+
+# Circle scenario
+class_sim_scenario_three <- function(n, d, ratio, seed =  NULL){
+  
+  # Setting the seed
+  set.seed(seed)
+  
+  # Calculating the radius of the circle 
+  r <- (2^(d - 1) * gamma(1 + d/2)/(pi^(d/2)))^(1/d)
+  
+  # Setting the number of observations from the first data set
+  n_a <- round(n*abs(1-ratio))
+  n_b <- round(n*ratio)
+  
+  # Generating values from the X observations
+  x_a <- replicate(d,runif(min = -1,max = 1,n = n*100))
+  colnames(x_a) <- paste("x",1:p)
+  
+  x_b <- replicate(d,runif(min = -1,max = 1,n = n*100))
+  colnames(x_b) <- paste("x",1:p)
+  
+  # Formating the complete dataset
+  x <- rbind(x_a,x_b)
+  y <- rep("A",nrow(x))
+  y[apply(x,1,function(w){sum(w^2) > r^2 })] <- "B" 
+  y <- as.factor(y)
+  
+  
+
+  simulated_data <- data.frame(x,y)
+  
+  # Only class A
+  class_a <- simulated_data[simulated_data[,"y"]=="A",]
+  class_b <- simulated_data[simulated_data[,"y"]=="B",]
+  
+  # Only class b
+  class_a <- class_a[ sample(1:nrow(class_a),size = n_a),]
+  class_b <- class_b[ sample(1:nrow(class_b),size = n_b),]
+  
+  # Merging all of them
+  
+  return(rbind(class_a,class_b))
+  
+}
+
+# ====================================================== #
+
+
+
 #Dependencies
 library(purrr)
 library(mlbench)
