@@ -416,6 +416,10 @@ regression_random_machines<-function(formula,#Formula that will be used
                                   poly_scale
                                   
 ){
+  
+  # Creating the class name variable
+  class_name <- as.charachter(formula[[2]])
+  
   #Probability associated with each kernel function
   
   #Root Mean Squared Error Function
