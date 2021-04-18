@@ -23,7 +23,6 @@ The ensemble method was developed for both classifiction and regression tasks. T
 mod_classification<-random_machines(formula=Species~.,#Formula that will be used
                   train=iris,#The Training set
                   validation=iris,#The validation set
-                  test_new=iris,# The test set
                   boots_size=100, #B correspoding to the number of bootstrap samples
                   cost=1,#Cost parameter of SVM
                   seed.bootstrap=NULL, #Set.seed for bootstrap samples
@@ -35,7 +34,7 @@ mod_classification<-random_machines(formula=Species~.,#Formula that will be used
                   offset=0)
 
 
-predict_rm_model(mod_classification)
+predict_rm_model(mod_classification,newdata=iris)
 ```
 
 
