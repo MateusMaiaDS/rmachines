@@ -46,7 +46,7 @@ predict_rm_model(mod_classification)
 mod_regression<-regression_random_machines(formula = dist~.,#Formula that will be used
                               train=cars,#The Training set
                               validation=cars, # The Validation set
-                              test_new=cars,#The test set
+                              test=cars,#The test set
                               boots_size=25, #B correspoding to the number of bootstrap samples
                               cost=1,#Cost parameter of SVM
                               gamma_rbf=1,#Gamma of Gaussian Kernel Function
