@@ -418,7 +418,7 @@ regression_random_machines<-function(formula,#Formula that will be used
 ){
   
   # Creating the class name variable
-  class_name <- as.charachter(formula[[2]])
+  class_name <- as.character(formula[[2]])
   
   #Probability associated with each kernel function
   
