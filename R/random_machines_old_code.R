@@ -32,6 +32,34 @@ library(kernlab)
 
 # offset=0
 
+#Root Mean Squared Error Function
+RMSE<-function(predicted,observed,epsilon=NULL){
+  min<-min(observed)
+  max<-max(observed)
+  sqrt(mean(unlist((predicted-observed)^2)))
+}
+
+hubber<-function(epsilon,observed,predicted){
+  mean( ifelse(abs(predicted-observed)>=epsilon,
+               epsilon*abs(predicted-observed)-(epsilon^2)/2,#hubber condition #1
+               0.5*(predicted-observed)^2) ) #hubber condition 2
+}
+
+
+#Standard Root Mean Squared Error Function
+SRMSE<-function(predicted,observed,epsilon=NULL){
+
+  mean(((predicted-observed)/observed)^2)
+}
+
+
+#E-senstive loss function (Vapnik)
+e_sensitive<-function(predicted,observed,epsilon){
+  mean( ifelse(abs(predicted-observed)>=epsilon,
+               abs(predicted-observed)-epsilon,
+               0) )
+}
+
 #METRICS FOR BINARY CASE
 mcc<-function(observed,predicted){
   levels(observed)<-c(1,-1)
