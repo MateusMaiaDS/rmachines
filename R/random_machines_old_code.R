@@ -48,7 +48,7 @@ hubber<-function(epsilon,observed,predicted){
 
 #Standard Root Mean Squared Error Function
 SRMSE<-function(predicted,observed,epsilon=NULL){
-
+  
   mean(((predicted-observed)/observed)^2)
 }
 
@@ -112,8 +112,6 @@ acc<-function(observed,predicted){
 random_machines<-function(formula,#Formula that will be used
                           train,#The Training set
                           validation,#The validation set
-                          test_new, #The test_new
-                          # class_name,#The string corresponding to the variable that will be predicted
                           boots_size=100, #B correspoding to the number of bootstrap samples
                           cost=1,#Cost parameter of SVM
                           degree=2, #Degree used in Table 1.,
@@ -131,7 +129,7 @@ random_machines<-function(formula,#Formula that will be used
   #The Kernel types used in the algorithm
   kernel_type<-c('rbfdot','polydot','laplacedot','vanilladot')
   
-  #TUNING AUTOMÃTICO
+  # Automatic Tuning
   if(automatic_tuning){
     
     early_model<- purrr::map(kernel_type,~kernlab::ksvm(formula,data=train,type="C-svc",
@@ -283,7 +281,6 @@ random_machines<-function(formula,#Formula that will be used
   
   
   
-  
   #Prediction of each mode
   predict<-purrr::map(models,~kernlab::predict(.x,newdata=test))
   
@@ -294,39 +291,11 @@ random_machines<-function(formula,#Formula that will be used
   kernel_weight<-purrr::map2(predict_oobg,out_of_bag,~table(.x,unlist(.y[,class_name]))) %>%
     purrr::map_dbl(~sum(diag(.x))/sum(.x))
   
-  #Prediction of each mode test_new
-  predict_new<-purrr::map(models,~kernlab::predict(.x,newdata=test_new))
   
-  
-  #Predictions finals
-  predict_df<-predict_new %>%                         #Generating a matrix with where the the rows are each bootstrap sample
-    unlist %>%                         #and the columns are each observation from test set
-    matrix(ncol=nrow(test_new),byrow = TRUE)
-  
-  
-  predict_df_new<-purrr::map(seq(1:nrow(test_new)),~predict_df[,.x])#Transposing the matrix
-  
-  pred_df_fct<-purrr::map(predict_df_new,~ifelse(.x==unlist(levels(train[[class_name]]))[1],1,-1)) %>% #Verifying the monst commmon prediction in the boostrap samples for each obs
-    purrr::map(~.x/((1+1e-10)-kernel_weight)^2) %>% #Multiplying the weights
-    purrr::map(sum) %>% purrr::map(sign) %>% purrr::map(~ifelse(.x==1,levels(dplyr::pull(train,class_name))[1],levels(unlist(train[,class_name]))[2])) %>%
-    unlist %>% as.factor()
-  
-  #AVG_AGR(para calcular iremos transformar o vetor das matrizes de fatores)
-  levels_class<-levels(train[[class_name]])
-  
-  #Transforma a matriz para calcular o agreement
-  pred_df_standard<-ifelse(predict_df==levels_class[[1]],1,-1)
-  agreement_trees<-tcrossprod(pred_df_standard)
-  
-  #Padroniza a contagem de ocorrencia
-  agreement_trees<-(agreement_trees+agreement_trees[1,1])/(2*agreement_trees[1,1])
-  
-  #Tira as medias
-  avg_agreement<-mean(agreement_trees[lower.tri(agreement_trees,diag = FALSE)])
-  
-  
-  
-  model_result<- list(predicted=pred_df_fct,lambda_values=list(Lin_Kern=prob_weights[1],
+  model_result<- list(train = train, # Train data used during the training.
+                      class_name = class_name,
+                      kernel_weight = kernel_weight, # Kernel Weight of each function
+                      lambda_values=list(Lin_Kern=prob_weights[1],
                                                                Pol_Kern=prob_weights[2],
                                                                RBF_Kern=prob_weights[3],
                                                                LAP_Kern=prob_weights[4]),
@@ -335,7 +304,7 @@ random_machines<-function(formula,#Formula that will be used
                                         cost=cost,
                                         gamma_rbf=gamma_rbf,
                                         gamma_lap=gamma_lap,
-                                        degree=degree),bootstrap_models=models,bootstrap_samples=boots_sample,agreement=avg_agreement)
+                                        degree=degree),bootstrap_models=models,bootstrap_samples=boots_sample)
   
   attr(model_result,"class")<-"rm_model"
   #=============================
@@ -355,12 +324,54 @@ random_machines<-function(formula,#Formula that will be used
 # )
 
 # Return rpredictions from the testset
-predict_rm_model<-function(mod){
-  return(mod$predicted)
+predict_rm_model<-function(mod,newdata){
+  
+  
+  # Setting the objecsts fro the trained model 
+  models <- mod$bootstrap_models
+  train <- mod$train
+  class_name <- mod$class_name
+  kernel_weight <- mod$kernel_weight
+  
+  #Prediction of each mode newdata
+  predict_new<-purrr::map(models,~kernlab::predict(.x,newdata=newdata))
+  
+  
+  #Predictions finals
+  predict_df<-predict_new %>%                         #Generating a matrix with where the the rows are each bootstrap sample
+    unlist %>%                         #and the columns are each observation from test set
+    matrix(ncol=nrow(newdata),byrow = TRUE)
+  
+  
+  predict_df_new<-purrr::map(seq(1:nrow(newdata)),~predict_df[,.x])#Transposing the matrix
+  
+  pred_df_fct<-purrr::map(predict_df_new,~ifelse(.x==unlist(levels(train[[class_name]]))[1],1,-1)) %>% #Verifying the monst commmon prediction in the boostrap samples for each obs
+    purrr::map(~.x/((1+1e-10)-kernel_weight)^2) %>% #Multiplying the weights
+    purrr::map(sum) %>% purrr::map(sign) %>% purrr::map(~ifelse(.x==1,levels(dplyr::pull(train,class_name))[1],levels(unlist(train[,class_name]))[2])) %>%
+    unlist %>% as.factor()
+  
+  #AVG_AGR(para calcular iremos transformar o vetor das matrizes de fatores)
+  levels_class<-levels(train[[class_name]])
+  
+  # Transform the matrix to calculate the agreement
+  pred_df_standard<-ifelse(predict_df==levels_class[[1]],1,-1)
+
+  # Calculate the agreement of trees but not return it
+  agreement_trees<-tcrossprod(pred_df_standard)
+  
+  #Padroniza a contagem de ocorrencia
+  agreement_trees<-(agreement_trees+agreement_trees[1,1])/(2*agreement_trees[1,1])
+  
+  # Ue the average values
+  avg_agreement<-mean(agreement_trees[lower.tri(agreement_trees,diag = FALSE)])
+  
+  
+  return(pred_df_fct)
 }
 
-                                                                  
-                                                                  # 
+
+
+# 
 RMSE_function<-function(predicted,observed,epsilon=NULL){
   min<-min(observed)
   max<-max(observed)
@@ -376,7 +387,7 @@ hubber<-function(epsilon,observed,predicted){
 
 #Standard Root Mean Squared Error Function
 SRMSE_function<-function(predicted,observed,epsilon=NULL){
-
+  
   mean(((predicted-observed)/observed)^2)
 }
 
@@ -391,30 +402,30 @@ e_sensitive<-function(predicted,observed,epsilon){
 
 
 predict_rrm_model<-function(mod){
-      
-      # Getting the prediction back from the model
-      prediction <- mod$predicted
   
-      #=============================
-      return(prediction)
+  # Getting the prediction back from the model
+  prediction <- mod$predicted
+  
+  #=============================
+  return(prediction)
 }
 
 
-                                 
+
 regression_random_machines<-function(formula,#Formula that will be used
-                                  train,#The Training set
-                                  validation,#The validation set
-                                  test, #New TEST
-                                  class_name,#The string corresponding to the variable that will be predicted
-                                  boots_size=25, #B correspoding to the number of bootstrap samples
-                                  cost=1,#Cost parameter of SVM
-                                  gamma_rbf=1,#Gamma used in Table 1.
-                                  gamma_lap=1,
-                                  degree=2,#Degree used in Table 1.
-                                  epsilon=0.1,beta=2,seed.bootstrap=NULL,
-                                  loss_function,automatic_tuning=FALSE, #Choose a loss-fucntion
-                                  poly_scale
-                                  
+                                     train,#The Training set
+                                     validation,#The validation set
+                                     test, #New TEST
+                                     class_name,#The string corresponding to the variable that will be predicted
+                                     boots_size=25, #B correspoding to the number of bootstrap samples
+                                     cost=1,#Cost parameter of SVM
+                                     gamma_rbf=1,#Gamma used in Table 1.
+                                     gamma_lap=1,
+                                     degree=2,#Degree used in Table 1.
+                                     epsilon=0.1,beta=2,seed.bootstrap=NULL,
+                                     loss_function,automatic_tuning=FALSE, #Choose a loss-fucntion
+                                     poly_scale
+                                     
 ){
   
   # Creating the class name variable
@@ -601,16 +612,16 @@ regression_random_machines<-function(formula,#Formula that will be used
   
   
   model_result <- list(predicted=pred_df_fct,lambda_values=list(Lin_Kern=prob_weights[4],
-                                                       Pol_Kern=prob_weights[2],
-                                                       RBF_Kern=prob_weights[1],
-                                                       LAP_Kern=prob_weights[3]),
-              model_params=list(class_name=class_name,
-                                boots_size=boots_size,
-                                cost=cost,
-                                gamma=gamma,
-                                degree=degree),bootstrap_models=models,bootstrap_samples=boots_sample,probabilities=prob_weights,
-              init_rmse=rmse,kernel_weight=kernel_weight,
-              correlation_measure=correlation_measure,list_kernels=random_kernel,predict_oob=predict_oobg,botse=boots_error)                                                
+                                                                Pol_Kern=prob_weights[2],
+                                                                RBF_Kern=prob_weights[1],
+                                                                LAP_Kern=prob_weights[3]),
+                       model_params=list(class_name=class_name,
+                                         boots_size=boots_size,
+                                         cost=cost,
+                                         gamma=gamma,
+                                         degree=degree),bootstrap_models=models,bootstrap_samples=boots_sample,probabilities=prob_weights,
+                       init_rmse=rmse,kernel_weight=kernel_weight,
+                       correlation_measure=correlation_measure,list_kernels=random_kernel,predict_oob=predict_oobg,botse=boots_error)                                                
   attr(model_result,"class")<-"rrm_model"                                                
   #=============================
   return(model_result)
