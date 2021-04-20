@@ -549,9 +549,9 @@ predict_rm_model<-function(mod,newdata,agreement=FALSE){
   
   # If else to return the agreement, 
   if(agreement){
-      return(pred_df_fct)
+    return( list(prediction = pred_df_fct, agreement = avg_agreement) )  
   } else {
-    return( list(prediction = pred_df_fct, agreement = avg_agreement) )
+    return(pred_df_fct)
   }
 }
 
