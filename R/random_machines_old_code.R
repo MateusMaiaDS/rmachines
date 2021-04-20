@@ -506,7 +506,7 @@ random_machines<-function(formula,#Formula that will be used
 # )
 
 # Return rpredictions from the testset
-predict_rm_model<-function(mod,newdata){
+predict_rm_model<-function(mod,newdata,agreement=FALSE){
   
   
   # Setting the objecsts fro the trained model 
