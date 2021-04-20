@@ -552,6 +552,7 @@ predict_rm_model<-function(mod,newdata,agreement=FALSE){
       return(pred_df_fct)
   } else {
     return( list(prediction = pred_df_fct, agreement = avg_agreement) )
+  }
 }
 
 
