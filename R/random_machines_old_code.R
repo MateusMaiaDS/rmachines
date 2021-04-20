@@ -547,8 +547,11 @@ predict_rm_model<-function(mod,newdata){
   # Ue the average values
   avg_agreement<-mean(agreement_trees[lower.tri(agreement_trees,diag = FALSE)])
   
-  
-  return(pred_df_fct)
+  # If else to return the agreement, 
+  if(agreement){
+      return(pred_df_fct)
+  } else {
+    return( list(prediction = pred_df_fct, agreement = avg_agreement) )
 }
 
 
