@@ -34,7 +34,7 @@ mod_classification<-random_machines(formula=Species~.,#Formula that will be used
                   offset=0)
 
 
-predict_rm_model(mod_classification,newdata=iris)
+predict_rm_model(mod_classification,newdata=iris,agreement = FALSE)
 ```
 
 
