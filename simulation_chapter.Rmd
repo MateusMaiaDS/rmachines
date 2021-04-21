@@ -38,9 +38,11 @@ To illustrate how the package works, we also we will be using function of the pa
 - *seed.bootstrap*: correspond to a seed to reproduce bootstrap samples.
 
 
-### Simulations
+The next sections provide the way to reproduce the results in two major approaches. The first considers the artificial data and the second the real benchmark data.
 
-To illustrated we will reproduce the the **Scenario 1** from Section 5, for that we will use the function `class_sim_scenario_one()` with the arguments `n=100` corresponds to the number of observations, `d=2` corresponds to the dimension of the simulated scenario, the ratio being equal to `ratio = 0.5`, and a `seed=42`.
+### Artificial Data results
+
+To illustrated we will reproduce the the **Scenario 1** from Section 5 Artificial Data Application, for that we will use the function `class_sim_scenario_one()` with the arguments `n=100` corresponds to the number of observations, `d=2` corresponds to the dimension of the simulated scenario, the ratio being equal to `ratio = 0.5`, and a `seed=42` to the reproducible results.
 
 ```{r}
 # Importing the package
@@ -104,3 +106,8 @@ rmachines::acc(observed = test_sample$y,
 ```
 
 We could see here that there is a strong prediction from this model.
+
+
+### Real benchmark data results
+
+
