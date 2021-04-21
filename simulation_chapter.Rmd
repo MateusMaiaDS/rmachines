@@ -1,6 +1,6 @@
 ---
-title: "rmachines"
-author: "Mateus Maia"
+title: "rmachines: Supplementary Material"
+author: "Anderson Ara, Mateus Maia,  Francisco Louzada and Samuel Macêdo"
 date: "4/21/2021"
 output:
   pdf_document: default
@@ -14,20 +14,27 @@ knitr::opts_chunk$set(echo = TRUE,message = FALSE, warning = FALSE)
 
 ## The `rmachines` package
 
-The package `rmachines` it is a R package developed to apply the support vector ensemble based on random kernel space. The package use the `kernlab`
+The package `rmachines` it is a R package developed to apply the support vector ensemble based on random kernel space. The package is in a continuous development to apply the support vector ensemble based on random kernel space. The complete documentation and the code files are available at [GitHub](https://github.com/MateusMaiaDS/rmachines). The package `kernlab` is used as a dependency to calculate the SVM models.
 
-The package `rmachines`  it is a R package developed to apply the support vector ensemble based on random kernel space. The complete documentation and the code files are available at [GitHub](https://github.com/MateusMaiaDS/rmachines). The package `kernlab` is used as a dependency to calculate the SVM models. To illustrate how the package works, we also we will be using function of the package to simulate the simulated scenario presented at Section 5. The main function of the package is `random_machines()`, and its argument are described below,
+To install the Random Machines actual version package from GitHub, consider the following command:
 
-- *train*: the training dataset used to generate the model and the bootstrap samples.
-- *validation*: the validation dataset to calculate the parameters $\lambda$.
+```{r eval=F}
+# install.packages("devtools")
+devtools::install_github("MateusMaiaDS/rmachines")
+```
+
+To illustrate how the package works, we also we will be using function of the package to simulate the artifical data scenario presented at Section 5. The main function of the package is the `random_machines()`, and its argument are described below:
+
+- *train*: the training dataset used to generate the model and the bootstrap samples;
+- *validation*: the validation dataset to calculate the parameters $\lambda$;
 - *boots_size*: the number $B$ of bootstrap samples.
-- *cost*: cost parameter $C$ from Equation 4.
+- *cost*: cost parameter $C$ from Equation 4;
 - *automatic_tuning*: tune the argument of the Gaussian and Laplacian kernel functions using the `sigest()` function from `kernlab`.
-- *poly_scale*: corresponds to the $\gamma$ parameter from the Polynomial Kernel from Table 1.
-- *offset*: corresponds to the $\omega$ parameter from the Polynomial Kernel from Table 1.
-- *degree*: corresponds to the $d$ parameter from the Polynomial Kernel from Table 1.
-- *gamma_lap*: correspond to the $\gamma$ parameter from the Laplacian Kernel from Table 1.
-- *gamma_rbf*: correspond tot he $\gamma$ parameter from the Gaussian Kernel from Table 1.
+- *poly_scale*: corresponds to the $\gamma$ parameter from the Polynomial Kernel from Table 1;
+- *offset*: corresponds to the $\omega$ parameter from the Polynomial Kernel from Table 1;
+- *degree*: corresponds to the $d$ parameter from the Polynomial Kernel from Table 1;
+- *gamma_lap*: correspond to the $\gamma$ parameter from the Laplacian Kernel from Table 1;
+- *gamma_rbf*: correspond tot he $\gamma$ parameter from the Gaussian Kernel from Table 1;
 - *seed.bootstrap*: correspond to a seed to reproduce bootstrap samples.
 
 
@@ -96,6 +103,4 @@ rmachines::acc(observed = test_sample$y,
                predicted = predicted)
 ```
 
-We could see that there is a good prediction from the model.
-
-
+We could see here that there is a strong prediction from this model.
