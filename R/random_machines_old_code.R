@@ -68,10 +68,10 @@ class_sim_scenario_three <- function(n, d, ratio, seed =  NULL){
   
   # Generating values from the X observations
   x_a <- replicate(d,runif(min = -1,max = 1,n = n*100))
-  colnames(x_a) <- paste("x",1:p)
+  colnames(x_a) <- paste("x",1:d)
   
   x_b <- replicate(d,runif(min = -1,max = 1,n = n*100))
-  colnames(x_b) <- paste("x",1:p)
+  colnames(x_b) <- paste("x",1:d)
   
   # Formating the complete dataset
   x <- rbind(x_a,x_b)
