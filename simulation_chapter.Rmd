@@ -37,21 +37,24 @@ To illustrate how the package works, we also we will be using function of the pa
 - `gamma_rbf`: correspond tot he $\gamma$ parameter from the Gaussian Kernel from Table 1;
 - `seed.bootstrap`: correspond to a seed to reproduce bootstrap samples.
 
-
-The next sections provide the way to reproduce the results in two major approaches. The first considers the artificial data and the second the real benchmark data.
-
-### Artificial Data results
-
-To illustrated we will reproduce the the **Scenario 1** from Section 5 Artificial Data Application, for that we will use the function `class_sim_scenario_one()` with the arguments `n=100` corresponds to the number of observations, `p=2` corresponds to the dimension of the simulated scenario, the ratio being equal to `ratio = 0.5`, and a `seed=42` to the reproducible results. To reproduce the cross validation scenario used over the article we will be using the function `cross_validation()`, which has as arguments:
+To reproduce the cross validation scenario used over the article we will be using the function `cross_validation()`, which has as arguments:
 
 - `data`: the data that will be divided.
 - `training_ratio`: the proportion of the number observations in the training set.
 - `validation_ratio`: the proportion of instances that belong to the validation set
 - `seed`: the seed used for the cross validation.
 
+The output of the `cross_validation()` return a list with the training, validation and test data, named by `train_sample`, `validation_sample`, and, `test_sample`, respectively.
+
+The next sections provide the way to replicate the results in two major approaches. The first considers the artificial data and the second the real benchmark data.
+
+### Artificial Data results
+
+To illustrated we will reproduce the the **Scenario 1** from Section 5 Artificial Data Application, for that we will use the function `class_sim_scenario_one()` with the arguments `n=100` corresponds to the number of observations, `p=2` corresponds to the dimension of the simulated scenario, the ratio being equal to `ratio = 0.5`, and a `seed=42` to the reproducible results. 
+
 Describing the application of the Simulation
 
-```{r}
+```{r,message=FALSE,warning=FALSE}
 # Importing the package
 library(rmachines)
 
@@ -62,10 +65,15 @@ simulated_data <- rmachines::class_sim_scenarion_one(n = 100,
                         seed = 42)
 
 # Creating the cross validation 
-cross_validation_object <- rmachines::cross_validation(simulated_data,
+cross_validation_object <- rmachines::cross_validation(data=simulated_data,
                                                        training_ratio = 0.7,
                              validation_ratio = 0.2,
                              seed = 42)
+
+# Creating the training, validation and set
+training_sample <- cross_validation_object$train_sample
+validation_sample <- cross_validation_object$validation_sample
+test_sample <- cross_validation_object$test
 
 # To generate the model we would have
 random_machines_model <- rmachines::random_machines(formula = y ~ .,
@@ -90,23 +98,118 @@ To predict the model, we will be using the function `predict_rm_model()` which h
 
 ```{r}
 # Prediction from the test data.
-predicted <- rmachines::predict_rm_model(mod = random_machines_model,newdata = test_sample)
+predicted <- rmachines::predict_rm_model(mod = random_machines_model,
+                                         newdata = test_sample)
 
 # To compare the accuracy we could use the acc function
 rmachines::acc(observed = test_sample$y,
                predicted = predicted)
 ```
 
-We could see here that there is a strong prediction from this model.
+We could see here that there is a strong prediction from this model. If we would be interested into the `agreement` we could rewrite.
 
+
+```{r}
+# Prediction from the test data.
+predicted_agr <- rmachines::predict_rm_model(mod = random_machines_model,
+                                         newdata = test_sample,
+                                         agreement = TRUE)
+# Getting the agreement
+predicted_agr
+```
 
 ### Real benchmark data results
 
-To illustrate the Section 6, where the algorithm performance it was evaluated over real data sets, `rmachines` imported two of the benchmark from the UCI Machine Learning Repository (Dua and Graff, 2017). The data use over the following example it is the 
+To illustrate the Section 6, where the algorithm performance it was evaluated over real data sets, `rmachines` imported two of the benchmark from the UCI Machine Learning Repository (Dua and Graff, 2017). The examples used over the following example are the `wholsale` (Abreu, 2011), and `ionosphere` (Dua and Graff, 2017).
 
+The result can be shown below, first for `whosale` 
+
+```{r}
+# Creating the cross validation object for the whosale data
+
+# Importing the data
+data("whosale") 
+
+# Cross validation whosale
+whosale_cross_validation <- rmachines::cross_validation(data = whosale,
+                            training_ratio = 0.7,
+                            validation_ratio = 0.2,
+                            seed = 42)
+
+# Getting the training, validation and sample
+whosale_train <- whosale_cross_validation$train_sample
+whosale_validation <- whosale_cross_validation$validation_sample
+whosale_test <- whosale_cross_validation$test_sample
+
+# To generate the model we would have
+rm_whosale <- rmachines::random_machines(formula = y ~ .,
+                                         train = whosale_train,
+                                         validation = whosale_test,
+                                         boots_size = 100, 
+                                         cost = 1,
+                                         gamma_rbf = 1,
+                                         gamma_lap = 1,
+                                         automatic_tuning = TRUE,
+                                         poly_scale = 1,
+                                         offset = 0,
+                                         degree = 2)
+
+# Prediction from the test data.
+predicted_whosale <- rmachines::predict_rm_model(mod = rm_whosale,
+                                         newdata = whosale_test)
+
+# To compare the accuracy we could use the acc function
+rmachines::acc(observed = whosale_test$y,
+               predicted = predicted_whosale)
+
+```
+
+For the `ionosphere` data we would have
+
+```{r}
+# Creating the cross validation object for the ionosphere data
+
+# Importing the data
+data("ionosphere") 
+
+# Cross validation ionosphere
+ionosphere_cross_validation <- rmachines::cross_validation(data = ionosphere,
+                            training_ratio = 0.7,
+                            validation_ratio = 0.2,
+                            seed = 42)
+
+# Getting the training, validation and sample
+ionosphere_train <- ionosphere_cross_validation$train_sample
+ionosphere_validation <- ionosphere_cross_validation$validation_sample
+ionosphere_test <- ionosphere_cross_validation$test_sample
+
+# To generate the model we would have
+rm_ionosphere <- rmachines::random_machines(formula = y ~ .,
+                                         train = ionosphere_train,
+                                         validation = ionosphere_test,
+                                         boots_size = 100, 
+                                         cost = 1,
+                                         gamma_rbf = 1,
+                                         gamma_lap = 1,
+                                         automatic_tuning = TRUE,
+                                         poly_scale = 1,
+                                         offset = 0,
+                                         degree = 2)
+
+# Prediction from the test data.
+predicted_ionosphere <- rmachines::predict_rm_model(mod = rm_ionosphere,
+                                         newdata = ionosphere_test)
+
+# To compare the accuracy we could use the acc function
+rmachines::acc(observed = ionosphere_test$y,
+               predicted = predicted_ionosphere)
+
+```
 
 
 ### References
+
+Abreu, N. (2011). Analise do perfil do cliente Recheio e desenvolvimento de um sistema promocional. Mestrado em Marketing, ISCTE-IUL, Lisbon
 
 Dua D, Graff C (2017). UCI machine learning repository.
 
