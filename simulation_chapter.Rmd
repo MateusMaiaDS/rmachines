@@ -113,7 +113,7 @@ ACC
 MCC <- rmachines::mcc(observed = test_sample$y,
                       predicted = predicted)
 
-#returing the uMCC measure
+#Returning the uMCC measure
 (MCC+1)/2
 
 ```
@@ -179,7 +179,7 @@ ACC
 MCC <- rmachines::mcc(observed = whosale_test$y,
                       predicted = predicted_whosale)
 
-#returing the uMCC measure
+#Returning the uMCC measure
 (MCC+1)/2
 
 ```
@@ -229,7 +229,7 @@ ACC
 MCC <- rmachines::mcc(observed = ionosphere_test$y,
                       predicted = predicted_ionosphere)
 
-#returing the uMCC measure
+#Returning the uMCC measure
 (MCC+1)/2
 ```
 
