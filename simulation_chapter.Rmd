@@ -25,24 +25,31 @@ devtools::install_github("MateusMaiaDS/rmachines")
 
 To illustrate how the package works, we also we will be using function of the package to simulate the artifical data scenario presented at Section 5. The main function of the package is the `random_machines()`, and its argument are described below:
 
-- *train*: the training dataset used to generate the model and the bootstrap samples;
-- *validation*: the validation dataset to calculate the parameters $\lambda$;
-- *boots_size*: the number $B$ of bootstrap samples.
-- *cost*: cost parameter $C$ from Equation 4;
-- *automatic_tuning*: tune the argument of the Gaussian and Laplacian kernel functions using the `sigest()` function from `kernlab`.
-- *poly_scale*: corresponds to the $\gamma$ parameter from the Polynomial Kernel from Table 1;
-- *offset*: corresponds to the $\omega$ parameter from the Polynomial Kernel from Table 1;
-- *degree*: corresponds to the $d$ parameter from the Polynomial Kernel from Table 1;
-- *gamma_lap*: correspond to the $\gamma$ parameter from the Laplacian Kernel from Table 1;
-- *gamma_rbf*: correspond tot he $\gamma$ parameter from the Gaussian Kernel from Table 1;
-- *seed.bootstrap*: correspond to a seed to reproduce bootstrap samples.
+- `train`: the training dataset used to generate the model and the bootstrap samples;
+- `validation`: the validation dataset to calculate the parameters $\lambda$;
+- `boots_size`: the number $B$ of bootstrap samples.
+- `cost`: cost parameter $C$ from Equation 4;
+- `automatic_tuning`: tune the argument of the Gaussian and Laplacian kernel functions using the `sigest()` function from `kernlab`.
+- `poly_scale`: corresponds to the $\gamma$ parameter from the Polynomial Kernel from Table 1;
+- `offset`: corresponds to the $\omega$ parameter from the Polynomial Kernel from Table 1;
+- `degree`: corresponds to the $d$ parameter from the Polynomial Kernel from Table 1;
+- `gamma_lap`: correspond to the $\gamma$ parameter from the Laplacian Kernel from Table 1;
+- `gamma_rbf`: correspond tot he $\gamma$ parameter from the Gaussian Kernel from Table 1;
+- `seed.bootstrap`: correspond to a seed to reproduce bootstrap samples.
 
 
 The next sections provide the way to reproduce the results in two major approaches. The first considers the artificial data and the second the real benchmark data.
 
 ### Artificial Data results
 
-To illustrated we will reproduce the the **Scenario 1** from Section 5 Artificial Data Application, for that we will use the function `class_sim_scenario_one()` with the arguments `n=100` corresponds to the number of observations, `d=2` corresponds to the dimension of the simulated scenario, the ratio being equal to `ratio = 0.5`, and a `seed=42` to the reproducible results.
+To illustrated we will reproduce the the **Scenario 1** from Section 5 Artificial Data Application, for that we will use the function `class_sim_scenario_one()` with the arguments `n=100` corresponds to the number of observations, `p=2` corresponds to the dimension of the simulated scenario, the ratio being equal to `ratio = 0.5`, and a `seed=42` to the reproducible results. To reproduce the cross validation scenario used over the article we will be using the function `cross_validation()`, which has as arguments:
+
+- `data`: the data that will be divided.
+- `training_ratio`: the proportion of the number observations in the training set.
+- `validation_ratio`: the proportion of instances that belong to the validation set
+- `seed`: the seed used for the cross validation.
+
+Describing the application of the Simulation
 
 ```{r}
 # Importing the package
@@ -54,26 +61,11 @@ simulated_data <- rmachines::class_sim_scenarion_one(n = 100,
                         ratio = 0.5,
                         seed = 42)
 
-# Creating the train, validation and test
-set.seed(42)
-
-# Sampling the training samples
-training_index <- sample(x = 1:nrow(simulated_data),
-                         size = round(nrow(simulated_data)*0.7))
-
-# Setting the training sample
-training_sample <-  simulated_data[training_index,]
-
-# Gathering the validation index
-validation_index <- sample(x = (1:nrow(simulated_data))[-training_index],
-                         size = round(nrow(simulated_data)*0.2))
-
-# Setting the validation data
-validation_sample <- simulated_data[validation_index,]
-
-# Getting the test sample
-test_sample <- simulated_data[-c(training_index,validation_index),]
-
+# Creating the cross validation 
+cross_validation_object <- rmachines::cross_validation(simulated_data,
+                                                       training_ratio = 0.7,
+                             validation_ratio = 0.2,
+                             seed = 42)
 
 # To generate the model we would have
 random_machines_model <- rmachines::random_machines(formula = y ~ .,
@@ -109,5 +101,13 @@ We could see here that there is a strong prediction from this model.
 
 
 ### Real benchmark data results
+
+To illustrate the Section 6, where the algorithm performance it was evaluated over real data sets, `rmachines` imported two of the benchmark from the UCI Machine Learning Repository (Dua and Graff, 2017). The data use over the following example it is the 
+
+
+
+### References
+
+Dua D, Graff C (2017). UCI machine learning repository.
 
 
