@@ -92,8 +92,8 @@ random_machines_model <- rmachines::random_machines(formula = y ~ .,
 
 To predict the model, we will be using the function `predict_rm_model()` which have the followings arguments:
 
-- *mod*: the `rm_model` class object
-- *agreement*: a boolean argument to return or not the agreement measure. The default is settled as `agreement=FALSE`.
+- `mod`: the `rm_model` class object
+- `agreement`: a boolean argument to return or not the agreement measure. The default is settled as `agreement=FALSE`.
 
 
 ```{r}
