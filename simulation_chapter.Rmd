@@ -1,7 +1,7 @@
 ---
-title: "rmachines: Supplementary Material"
+title: "Random Machines: A bagged-weighted support vector model with free kernel choice"
+subtitle: "Supplementary Material"
 author: "Anderson Ara, Mateus Maia,  Francisco Louzada and Samuel Macêdo"
-date: "4/21/2021"
 output:
   pdf_document: default
   html_document:
@@ -66,9 +66,9 @@ simulated_data <- rmachines::class_sim_scenarion_one(n = 100,
 
 # Creating the cross validation 
 cross_validation_object <- rmachines::cross_validation(data=simulated_data,
-                                                       training_ratio = 0.7,
-                             validation_ratio = 0.2,
-                             seed = 42)
+                            training_ratio = 0.7,
+                            validation_ratio = 0.2,
+                            seed = 42)
 
 # Creating the training, validation and set
 training_sample <- cross_validation_object$train_sample
@@ -102,8 +102,17 @@ predicted <- rmachines::predict_rm_model(mod = random_machines_model,
                                          newdata = test_sample)
 
 # To compare the accuracy we could use the acc function
-rmachines::acc(observed = test_sample$y,
-               predicted = predicted)
+ACC <- rmachines::acc(observed = test_sample$y,
+                      predicted = predicted)
+ACC
+
+# To compare the  Matthew's corr. coef. using the mcc function
+MCC <- rmachines::mcc(observed = test_sample$y,
+                      predicted = predicted)
+
+#returing the uMCC measure
+(MCC+1)/2
+
 ```
 
 We could see here that there is a strong prediction from this model. If we would be interested in the `agreement` we could rewrite it.
@@ -159,8 +168,16 @@ predicted_whosale <- rmachines::predict_rm_model(mod = rm_whosale,
                                          newdata = whosale_test)
 
 # To compare the accuracy we could use the acc function
-rmachines::acc(observed = whosale_test$y,
-               predicted = predicted_whosale)
+ACC <- rmachines::acc(observed = whosale_test$y,
+                      predicted = predicted_whosale)
+ACC
+
+# To compare the  Matthew's corr. coef. using the mcc function
+MCC <- rmachines::mcc(observed = whosale_test$y,
+                      predicted = predicted_whosale)
+
+#returing the uMCC measure
+(MCC+1)/2
 
 ```
 
@@ -201,9 +218,16 @@ predicted_ionosphere <- rmachines::predict_rm_model(mod = rm_ionosphere,
                                          newdata = ionosphere_test)
 
 # To compare the accuracy we could use the acc function
-rmachines::acc(observed = ionosphere_test$y,
-               predicted = predicted_ionosphere)
+ACC <- rmachines::acc(observed = ionosphere_test$y,
+                      predicted = predicted_ionosphere)
+ACC
 
+# To compare the  Matthew's corr. coef. using the mcc function
+MCC <- rmachines::mcc(observed = ionosphere_test$y,
+                      predicted = predicted_ionosphere)
+
+#returing the uMCC measure
+(MCC+1)/2
 ```
 
 
