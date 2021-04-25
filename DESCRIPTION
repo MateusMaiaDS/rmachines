@@ -20,4 +20,5 @@ Depends:
     methods,
     magrittr,
     dplyr,
-    purrr
+    purrr,
+    R (>= 2.10)
