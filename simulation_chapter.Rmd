@@ -3,9 +3,9 @@ title: "rmachines: Supplementary Material"
 author: "Anderson Ara, Mateus Maia,  Francisco Louzada and Samuel Macêdo"
 date: "4/21/2021"
 output:
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
