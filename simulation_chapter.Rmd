@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE,message = FALSE, warning = FALSE)
 
 ## The `rmachines` package
 
-The package `rmachines` it is a R package developed to apply the support vector ensemble based on random kernel space. The package is in a continuous development to apply the support vector ensemble based on random kernel space. The complete documentation and the code files are available at [GitHub](https://github.com/MateusMaiaDS/rmachines). The package `kernlab` is used as a dependency to calculate the SVM models.
+The package `rmachines` is an R package developed to apply the support vector ensemble based on random kernel space. The package is in continuous development to apply the support vector ensemble based on random kernel space. The complete documentation and the code files are available at [GitHub](https://github.com/MateusMaiaDS/rmachines). The package `kernlab` is used as a dependency to calculate the SVM models.
 
 To install the Random Machines actual version package from GitHub, consider the following command:
 
@@ -23,7 +23,7 @@ To install the Random Machines actual version package from GitHub, consider the 
 devtools::install_github("MateusMaiaDS/rmachines")
 ```
 
-To illustrate how the package works, we also we will be using function of the package to simulate the artifical data scenario presented at Section 5. The main function of the package is the `random_machines()`, and its argument are described below:
+To illustrate how the package works, we also will be using the function of the package to simulate the artificial data scenario presented in Section 5. The main function of the package is the `random_machines()`, and its argument is described below:
 
 - `train`: the training dataset used to generate the model and the bootstrap samples;
 - `validation`: the validation dataset to calculate the parameters $\lambda$;
@@ -34,23 +34,23 @@ To illustrate how the package works, we also we will be using function of the pa
 - `offset`: corresponds to the $\omega$ parameter from the Polynomial Kernel from Table 1;
 - `degree`: corresponds to the $d$ parameter from the Polynomial Kernel from Table 1;
 - `gamma_lap`: correspond to the $\gamma$ parameter from the Laplacian Kernel from Table 1;
-- `gamma_rbf`: correspond tot he $\gamma$ parameter from the Gaussian Kernel from Table 1;
-- `seed.bootstrap`: correspond to a seed to reproduce bootstrap samples.
+- `gamma_rbf`: correspond to he $\gamma$ parameter from the Gaussian Kernel from Table 1;
+- `seed.bootstrap`: correspond to seed to reproduce bootstrap samples.
 
 To reproduce the cross validation scenario used over the article we will be using the function `cross_validation()`, which has as arguments:
 
 - `data`: the data that will be divided.
-- `training_ratio`: the proportion of the number observations in the training set.
+- `training_ratio`: the proportion of the number of observations in the training set.
 - `validation_ratio`: the proportion of instances that belong to the validation set
-- `seed`: the seed used for the cross validation.
+- `seed`: the seed used for the cross-validation.
 
-The output of the `cross_validation()` return a list with the training, validation and test data, named by `train_sample`, `validation_sample`, and, `test_sample`, respectively.
+The output of the `cross_validation()` return a list with the training, validation, and test data, named by `train_sample`, `validation_sample`, and, `test_sample`, respectively.
 
 The next sections provide the way to replicate the results in two major approaches. The first considers the artificial data and the second the real benchmark data.
 
 ### Artificial Data results
 
-To illustrated we will reproduce the the **Scenario 1** from Section 5 Artificial Data Application, for that we will use the function `class_sim_scenario_one()` with the arguments `n=100` corresponds to the number of observations, `p=2` corresponds to the dimension of the simulated scenario, the ratio being equal to `ratio = 0.5`, and a `seed=42` to the reproducible results. 
+To illustrate we will reproduce the **Scenario 1** from Section 5 Artificial Data Application, for that we will use the function `class_sim_scenario_one()` with the arguments `n=100` corresponds to the number of observations, `p=2` corresponds to the dimension of the simulated scenario, the ratio being equal to `ratio = 0.5`, and a `seed=42` to the reproducible results. 
 
 Describing the application of the Simulation
 
@@ -106,7 +106,7 @@ rmachines::acc(observed = test_sample$y,
                predicted = predicted)
 ```
 
-We could see here that there is a strong prediction from this model. If we would be interested into the `agreement` we could rewrite.
+We could see here that there is a strong prediction from this model. If we would be interested in the `agreement` we could rewrite it.
 
 
 ```{r}
@@ -120,7 +120,7 @@ predicted_agr
 
 ### Real benchmark data results
 
-To illustrate the Section 6, where the algorithm performance it was evaluated over real data sets, `rmachines` imported two of the benchmark from the UCI Machine Learning Repository (Dua and Graff, 2017). The examples used over the following example are the `wholsale` (Abreu, 2011), and `ionosphere` (Dua and Graff, 2017).
+To illustrate Section 6, where the algorithm performance was evaluated over real data sets, `rmachines` imported two of the benchmark from the UCI Machine Learning Repository (Dua and Graff, 2017). The examples used over the following example are the `wholsale` (Abreu, 2011), and `ionosphere` (Dua and Graff, 2017).
 
 The result can be shown below, first for `whosale` 
 
