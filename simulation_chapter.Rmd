@@ -11,7 +11,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE,message = FALSE, warning = FALSE)
 ```
 
-This section corresponds to the supplementary material of the paper "Random Machines: A bagged-weighted support vector model with free kernel choice" authored by Ara, Maia, Louzada, and Macêdo and published in Journal of Data Science. The following sections describes how reproduce the paper results using the `rmachines` package. This text is also available at https://mateusmaiads.github.io/rmachines.
+This section corresponds to the supplementary material of the paper "Random Machines: A bagged-weighted support vector model with free kernel choice" authored by Ara, Maia, Louzada, and Macêdo and published in Journal of Data Science. The following sections describes how reproduce the paper results using the `rmachines` package. 
 
 
 
