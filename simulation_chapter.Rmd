@@ -3,9 +3,9 @@ title: "Random Machines: A bagged-weighted support vector model with free kernel
 subtitle: "Supplementary Material"
 author: "Anderson Ara, Mateus Maia,  Francisco Louzada and Samuel Macêdo"
 output:
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
