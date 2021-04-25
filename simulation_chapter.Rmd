@@ -1,6 +1,6 @@
 ---
 title: "Random Machines: A bagged-weighted support vector model with free kernel choice"
-subtitle: "Supplementary Material"
+subtitle: "Supplementary Material v1.0"
 author: "Anderson Ara, Mateus Maia,  Francisco Louzada and Samuel Macêdo"
 output:
   html_document:
