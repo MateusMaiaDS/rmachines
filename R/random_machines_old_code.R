@@ -653,6 +653,7 @@ regression_random_machines<-function(formula,#Formula that will be used
                                      cost=1,#Cost parameter of SVM
                                      gamma_rbf=1,#Gamma used in Table 1.
                                      gamma_lap=1,
+                                     poly_scale = 1, # Scale factor from polynomial kernel
                                      degree=2,#Degree used in Table 1.
                                      epsilon=0.1,beta=2,seed.bootstrap=NULL,
                                      loss_function,automatic_tuning=FALSE, #Choose a loss-fucntion
