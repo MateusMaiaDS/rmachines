@@ -142,7 +142,6 @@ reg_sim_scenario_one <- function(n,seed= NULL){
 
   # Generating the x
   x <- replicate(2,runif(n,min = -1,max = 1))
-  x <- apply(x,2,function(z){2*(z-0.5)})
   
   colnames(x) <- paste0("x.",1:2)
 
@@ -159,7 +158,6 @@ reg_sim_scenario_two <- function(n,seed= NULL){
 
   # Generating the x
   x <- replicate(8,runif(n,min = -1,max = 1))
-  x <- apply(x,2,function(z){2*(z-0.5)})
   
   colnames(x) <- paste0("x.",1:8)
 
@@ -177,7 +175,6 @@ reg_sim_scenario_three <- function(n,seed= NULL){
 
   # Generating the x
   x <- replicate(4,runif(n,min = -1,max = 1))
-  x <- apply(x,2,function(z){2*(z-0.5)})
 
   colnames(x) <- paste0("x.",1:4)
 
@@ -194,7 +191,6 @@ reg_sim_scenario_four <- function(n,seed= NULL){
 
   # Generating the x
   x <- replicate(6,runif(n,min = -1,max = 1))
-  x <- apply(x,2,function(z){2*(z-0.5)})
   colnames(x) <- paste0("x.",1:6)
 
   # Generating the y
@@ -211,7 +207,6 @@ reg_sim_scenario_five <- function(n,seed= NULL){
 
   # Generating the x
   x <- replicate(6,rnorm(n = n))
-  x <- apply(x,2,function(z){2*(z-0.5)})
 
   colnames(x) <- paste0("x.",1:6)
 
